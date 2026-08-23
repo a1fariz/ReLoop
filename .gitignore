@@ -33,7 +33,7 @@ target/
 .settings/
 .vscode/
 
-# Environment and Secrets
+# Environment and Secrets (Ignore real .env files)
 .env
 .env.local
 .env.*.local

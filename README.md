@@ -1,12 +1,19 @@
 # ReLoop Circular Commerce Platform ♻️
 
-Enterprise-grade circular commerce platform for authenticated serialized electronics, technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
+[![Java 17](https://img.shields.io/badge/Java-17%20LTS-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot 3.3.4](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Modulith](https://img.shields.io/badge/Spring%20Modulith-1.2.4-blue.svg)](https://spring.io/projects/spring-modulith)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14.2.15-black.svg)](https://nextjs.org/)
+[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://www.postgresql.org/)
+[![Redis 7](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)
+
+ReLoop is an enterprise-grade circular commerce platform built for authenticated serialized electronics, 50-point technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
 
 ---
 
 ## 🏛️ Architecture Highlights
 
-- **Modular Monolith:** Built with **Java 17**, **Spring Boot 3.3.4**, and **Spring Modulith** with automated architectural boundary verification.
+- **Modular Monolith Architecture:** Built with **Java 17**, **Spring Boot 3.3.4**, and **Spring Modulith** with automated architectural boundary verification (`ModulithArchitectureTest`).
 - **Double-Entry Financial Ledger:** Every monetary movement (Escrow Hold, Platform Commission, Seller Payout, Partial Dispute Refund) is recorded in balanced Debit/Credit (`DR`/`CR`) journal lines with zero financial discrepancies ($\sum \text{Debits} = \sum \text{Credits}$).
 - **Anti-Hoarding Checkout Lease:** Two-stage reservation system where adding to cart does not block inventory, but initiating checkout acquires a pessimistic row lock (`SELECT ... FOR UPDATE`) with a 15-minute lease guarded by a PostgreSQL **Partial Unique Index**.
 - **Algorithmic Math Engines:**
@@ -17,7 +24,7 @@ Enterprise-grade circular commerce platform for authenticated serialized electro
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
 ### Backend
 - **Java 17 LTS**
@@ -34,52 +41,100 @@ Enterprise-grade circular commerce platform for authenticated serialized electro
 
 ---
 
-## 🚀 Quick Start Guide
+## 📁 Repository Structure
 
-### 1. Start Infrastructure via Docker Compose
+```text
+reloop/
+├── backend/                  # Spring Boot 3.3.4 Modular Monolith
+│   ├── src/main/java/com/reloop/
+│   │   ├── auth/             # JWT, Refresh Token Rotation, RBAC
+│   │   ├── catalog/          # Canonical ProductModels & Categories
+│   │   ├── units/            # Serialized ProductUnits & Physical Custody
+│   │   ├── listings/         # Verified Seller Listings & Pricing Snapshots
+│   │   ├── checkout/         # 15-min Anti-Hoarding Leases & Checkout Saga
+│   │   ├── orders/           # Master Orders & Sub-Fulfillment Orders
+│   │   ├── ledger/           # Double-Entry Financial Journal & Accounts
+│   │   ├── tradein/          # Multiplicative Valuation Calculator
+│   │   ├── inspections/      # 50-Point Technical Grading Engine
+│   │   ├── warranties/       # Warranty Claims & Protection Policies
+│   │   ├── disputes/         # Arbitrated Dispute Resolution & Split Refunds
+│   │   ├── sellers/          # Bayesian Seller Reputation Metrics
+│   │   ├── outbox/           # Transactional Outbox Poller Worker
+│   │   └── audit/            # Immutable Append-Only Audit Trail
+│   └── src/main/resources/db/migration/ # Flyway SQL Migrations (V1 to V8)
+│
+├── frontend/                 # Next.js 14 + Tailwind + TanStack Query
+│   ├── src/app/
+│   │   ├── page.tsx          # Certified Marketplace Landing Page
+│   │   ├── catalog/          # Serialized Listing Catalog & 50-Pt Report
+│   │   ├── checkout/[id]/    # Anti-Hoarding 15-min Countdown Lease Timer
+│   │   ├── trade-in/         # Real-time Algorithmic Valuation Calculator
+│   │   ├── warranties/       # Customer Warranty & Dispute Center
+│   │   ├── seller/           # Seller Dashboard & Double-Entry Ledger View
+│   │   └── login/ & register/# Authentication Pages
+│   └── src/lib/              # queryKeys.ts & apiClient.ts
+│
+├── docker-compose.yml        # PostgreSQL 16, Redis 7, Mailpit
+├── .env.example              # Environment Configuration Template
+├── .gitignore                # Clean Artifact Exclusions
+└── README.md                 # Project Documentation
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+
+### 2. Start Infrastructure (Docker Compose)
 ```bash
 docker compose up -d
 ```
 Services started:
-- PostgreSQL on port `5433` (DB: `reloop_db`, User: `reloop_app`, Password: `reloop_secret_password`)
-- Redis on port `6379`
-- Mailpit Web UI on port `8025` (SMTP port `1025`)
+- **PostgreSQL 16:** `localhost:5433` (DB: `reloop_db`, User: `reloop_app`, Password: `reloop_secret_password`)
+- **Redis 7:** `localhost:6379`
+- **Mailpit:** `http://localhost:8025` (SMTP: `1025`)
 
-### 2. Run Backend
+### 3. Run Backend (Spring Boot 3)
 ```bash
 cd backend
 mvn spring-boot:run
 ```
-Backend will start on `http://localhost:8080` and execute Flyway migrations V1 to V8 automatically.
+Backend starts on `http://localhost:8080` and applies Flyway migrations `V1` to `V8` automatically.
 
-### 3. Run Backend Test Suite
+### 4. Run Backend Test Suite
 ```bash
 cd backend
 mvn clean test
 ```
 
-### 4. Run Frontend
+### 5. Run Frontend (Next.js 14)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Frontend will be available at `http://localhost:3000`.
+Frontend runs at `http://localhost:3000`.
 
 ---
 
-## 📚 API Endpoints Summary
+## 📡 REST API Summary
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/v1/auth/register` | Register new user (Customer, Seller, Technician) |
-| `POST` | `/api/v1/auth/login` | Authenticate and obtain JWT + Refresh Token |
-| `POST` | `/api/v1/auth/refresh` | Rotate refresh token with token-family reuse detection |
-| `GET` | `/api/v1/catalog/models` | List all canonical product models |
-| `GET` | `/api/v1/listings` | List active verified serialized listings |
-| `POST` | `/api/v1/checkout/reserve` | Acquire 15-minute anti-hoarding checkout lease |
-| `POST` | `/api/v1/trade-in/calculate` | Calculate real-time algorithmic valuation |
-| `GET` | `/api/v1/sellers/{id}/metrics` | Fetch Bayesian seller reputation & metrics |
-| `GET` | `/api/v1/warranties/my` | List authenticated user active warranties |
-| `POST` | `/api/v1/disputes` | Register a transaction dispute |
-| `POST` | `/api/v1/disputes/{id}/resolve` | Arbitrate dispute with partial split settlement |
+| `POST` | `/api/v1/auth/register` | Register new user account |
+| `POST` | `/api/v1/auth/login` | Login and acquire Access Token + Refresh Token |
+| `POST` | `/api/v1/auth/refresh` | Rotate refresh token with token-family reuse protection |
+| `GET` | `/api/v1/catalog/models` | Fetch canonical product models |
+| `GET` | `/api/v1/listings` | Fetch active verified listings with grading snapshots |
+| `POST` | `/api/v1/checkout/reserve` | Acquire 15-minute anti-hoarding lease on serialized unit |
+| `POST` | `/api/v1/checkout/confirm-payment` | Confirm payment, hold escrow, and mark unit sold |
+| `POST` | `/api/v1/trade-in/calculate` | Calculate instant multiplicative valuation |
+| `GET` | `/api/v1/sellers/{id}/metrics` | Fetch Bayesian reputation score and seller metrics |
+| `GET` | `/api/v1/warranties/my` | Get active customer warranties |
+| `POST` | `/api/v1/disputes` | File a post-purchase transaction dispute |
+| `POST` | `/api/v1/disputes/{id}/resolve` | Arbitrate dispute with partial split ledger settlement |
