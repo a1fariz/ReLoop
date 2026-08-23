@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  reloop-postgres:
+    image: postgres:16-alpine
+    container_name: reloop-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: reloop_db
+      POSTGRES_USER: reloop_app
+      POSTGRES_PASSWORD: reloop_secret_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reloop_app -d reloop_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  reloop-redis:
+    image: redis:7-alpine
+    container_name: reloop-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  reloop-mailpit:
+    image: axllent/mailpit:latest
+    container_name: reloop-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    environment:
+      MP_MAX_MESSAGES: 500
+
+volumes:
+  postgres_data:
+  redis_data:
