@@ -124,17 +124,12 @@ Frontend runs at `http://localhost:3000`.
 
 ## 📡 REST API Summary
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/v1/auth/register` | Register new user account |
-| `POST` | `/api/v1/auth/login` | Login and acquire Access Token + Refresh Token |
-| `POST` | `/api/v1/auth/refresh` | Rotate refresh token with token-family reuse protection |
-| `GET` | `/api/v1/catalog/models` | Fetch canonical product models |
-| `GET` | `/api/v1/listings` | Fetch active verified listings with grading snapshots |
-| `POST` | `/api/v1/checkout/reserve` | Acquire 15-minute anti-hoarding lease on serialized unit |
-| `POST` | `/api/v1/checkout/confirm-payment` | Confirm payment, hold escrow, and mark unit sold |
-| `POST` | `/api/v1/trade-in/calculate` | Calculate instant multiplicative valuation |
-| `GET` | `/api/v1/sellers/{id}/metrics` | Fetch Bayesian reputation score and seller metrics |
-| `GET` | `/api/v1/warranties/my` | Get active customer warranties |
-| `POST` | `/api/v1/disputes` | File a post-purchase transaction dispute |
-| `POST` | `/api/v1/disputes/{id}/resolve` | Arbitrate dispute with partial split ledger settlement |
+| Layanan | Port | URL / Akses | Keterangan |
+|---|---|---|---|
+| **API Gateway (Nginx)** | `8000` | http://localhost:8000 | Reverse proxy terpusat, rate limiter & auth routing |
+| **Frontend (Next.js 14)** | `3000` | http://localhost:3000 | Web UI / Marketplace |
+| **Backend (Spring Boot 3)** | `8080` | http://localhost:8080 | REST API & Actuator |
+| **PostgreSQL 16 (Docker)** | `5433` | `localhost:5433/reloop_db` | Database Utama (User: `reloop_app`) |
+| **Redis 7 (Docker)** | `6379` | `localhost:6379` | Cache & Redisson Locks |
+| **Mailpit Web UI (Docker)** | `8025` | http://localhost:8025 | Dashboard Email Testing |
+| **Mailpit SMTP (Docker)** | `1025` | `localhost:1025` | Server Pengiriman Email Lokal |
