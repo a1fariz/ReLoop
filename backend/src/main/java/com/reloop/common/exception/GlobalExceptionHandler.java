@@ -56,6 +56,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
+        ex.printStackTrace();
         String correlationId = (String) request.getAttribute("X-Correlation-ID");
         if (correlationId == null) correlationId = UUID.randomUUID().toString();
 
@@ -63,7 +64,7 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "INTERNAL_SERVER_ERROR",
-                "An unexpected internal error occurred",
+                ex.getMessage() != null ? ex.getMessage() : "An unexpected internal error occurred",
                 request.getRequestURI(),
                 correlationId,
                 List.of()

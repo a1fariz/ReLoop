@@ -22,7 +22,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
-            @Valid @RequestBody RegisterRequest request,
+            @RequestBody @Valid RegisterRequest request,
             HttpServletRequest servletRequest
     ) {
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");
@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
-            @Valid @RequestBody LoginRequest request,
+            @RequestBody @Valid LoginRequest request,
             HttpServletRequest servletRequest
     ) {
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");

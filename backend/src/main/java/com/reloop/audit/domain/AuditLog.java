@@ -22,7 +22,7 @@ public class AuditLog {
     private Long actorId;
     private String actorEmail;
     private String actorRole;
-    private String correlationId;
+    private java.util.UUID correlationId;
 
     @Column(columnDefinition = "jsonb")
     private String fromState;
@@ -38,7 +38,7 @@ public class AuditLog {
 
     public AuditLog() {}
 
-    public AuditLog(String entityName, String entityId, String action, Long actorId, String actorEmail, String actorRole, String correlationId, String fromState, String toState) {
+    public AuditLog(String entityName, String entityId, String action, Long actorId, String actorEmail, String actorRole, java.util.UUID correlationId, String fromState, String toState) {
         this.entityName = entityName;
         this.entityId = entityId;
         this.action = action;
@@ -57,7 +57,7 @@ public class AuditLog {
     public Long getActorId() { return actorId; }
     public String getActorEmail() { return actorEmail; }
     public String getActorRole() { return actorRole; }
-    public String getCorrelationId() { return correlationId; }
+    public java.util.UUID getCorrelationId() { return correlationId; }
     public String getFromState() { return fromState; }
     public String getToState() { return toState; }
     public Instant getCreatedAt() { return createdAt; }

@@ -1,6 +1,9 @@
 package com.reloop.units.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -22,11 +25,13 @@ public class ProductUnit {
     private Long currentOwnerId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "physical_custody_type")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private PhysicalCustody currentCustody = PhysicalCustody.OWNER;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "product_unit_status")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private UnitStatus status = UnitStatus.DRAFT;
 
     private String grade;

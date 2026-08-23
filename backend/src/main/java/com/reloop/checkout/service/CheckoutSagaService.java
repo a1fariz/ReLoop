@@ -55,7 +55,7 @@ public class CheckoutSagaService {
     @Transactional
     public OrderConfirmationResponse processPaymentAndSettleOrder(Long buyerId, ConfirmPaymentRequest request) {
         // Step 1: Validate active 15-min reservation lease
-        UnitReservation reservation = reservationRepository.findByToken(request.reservationToken())
+        UnitReservation reservation = reservationRepository.findByToken(request.getReservationToken())
                 .orElseThrow(() -> new BusinessException("Invalid reservation token", "RESERVATION_NOT_FOUND", HttpStatus.NOT_FOUND));
 
         if (reservation.getStatus() != UnitReservation.ReservationStatus.ACTIVE || reservation.getExpiresAt().isBefore(Instant.now())) {
@@ -78,7 +78,7 @@ public class CheckoutSagaService {
 
         // Step 4: Create Master Order & Fulfillment Sub-Order
         String orderNumber = "ORD-" + Instant.now().toEpochMilli() + "-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        MasterOrder masterOrder = new MasterOrder(orderNumber, buyerId, totalAmount, request.shippingAddress());
+        MasterOrder masterOrder = new MasterOrder(orderNumber, buyerId, totalAmount, request.getShippingAddress());
         masterOrder.setPaymentStatus(MasterOrder.PaymentStatus.PAID);
         masterOrder = masterOrderRepository.save(masterOrder);
 

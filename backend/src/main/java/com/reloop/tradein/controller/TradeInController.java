@@ -23,20 +23,31 @@ public class TradeInController {
 
     @PostMapping("/calculate")
     public ResponseEntity<ApiResponse<TradeInOfferResponse>> calculateTradeIn(
-            @Valid @RequestBody TradeInCalculationRequest request,
+            @RequestBody @Valid TradeInCalculationRequest request,
             HttpServletRequest servletRequest
     ) {
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");
 
-        TradeInValuationService.Condition condition = TradeInValuationService.Condition.valueOf(request.condition().toUpperCase());
-        TradeInValuationService.Functionality functionality = TradeInValuationService.Functionality.valueOf(request.functionality().toUpperCase());
+        TradeInValuationService.Condition condition;
+        TradeInValuationService.Functionality functionality;
+        try {
+            condition = TradeInValuationService.Condition.valueOf(request.condition().toUpperCase());
+        } catch (Exception e) {
+            condition = TradeInValuationService.Condition.EXCELLENT;
+        }
+
+        try {
+            functionality = TradeInValuationService.Functionality.valueOf(request.functionality().toUpperCase());
+        } catch (Exception e) {
+            functionality = TradeInValuationService.Functionality.FULLY_FUNCTIONAL;
+        }
 
         BigDecimal baseValue = valuationService.calculateBaseValue(
                 request.msrp(),
                 request.annualDepreciationRate(),
                 request.releaseDate(),
                 LocalDate.now()
-        );
+        ).setScale(2, java.math.RoundingMode.HALF_UP);
 
         BigDecimal batteryMultiplier = valuationService.getBatteryMultiplier(request.batteryHealthPercentage());
         BigDecimal accessoriesMultiplier = request.hasCompleteAccessories() ? new BigDecimal("1.03") : BigDecimal.ONE;
@@ -49,7 +60,7 @@ public class TradeInController {
                 functionality,
                 request.batteryHealthPercentage(),
                 request.hasCompleteAccessories(),
-                request.estimatedRepairCost()
+                request.estimatedRepairCost() != null ? request.estimatedRepairCost() : BigDecimal.ZERO
         );
 
         TradeInOfferResponse response = new TradeInOfferResponse(

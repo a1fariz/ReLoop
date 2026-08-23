@@ -1,10 +1,24 @@
 package com.reloop.checkout.dto;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
-public record ConfirmPaymentRequest(
-    @NotNull UUID reservationToken,
-    @NotNull String paymentMethod, // 'SIMULATED_ESCROW_DIRECT', 'VIRTUAL_ACCOUNT', 'QRIS'
-    @NotNull String shippingAddress
-) {}
+public class ConfirmPaymentRequest {
+    private UUID reservationToken;
+    private String paymentMethod;
+    private String shippingAddress;
+
+    public ConfirmPaymentRequest() {}
+
+    public ConfirmPaymentRequest(UUID reservationToken, String paymentMethod, String shippingAddress) {
+        this.reservationToken = reservationToken;
+        this.paymentMethod = paymentMethod;
+        this.shippingAddress = shippingAddress;
+    }
+
+    public UUID getReservationToken() { return reservationToken; }
+    public void setReservationToken(UUID reservationToken) { this.reservationToken = reservationToken; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getShippingAddress() { return shippingAddress; }
+    public void setShippingAddress(String shippingAddress) { this.shippingAddress = shippingAddress; }
+}

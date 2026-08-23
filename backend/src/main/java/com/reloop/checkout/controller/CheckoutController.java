@@ -8,7 +8,6 @@ import com.reloop.checkout.service.CheckoutReservationService;
 import com.reloop.checkout.service.CheckoutSagaService;
 import com.reloop.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +26,12 @@ public class CheckoutController {
         this.checkoutSagaService = checkoutSagaService;
     }
 
-    @PostMapping("/reserve")
+    @PostMapping(value = "/reserve", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ApiResponse<ReservationResponse>> createReservation(
-            @Valid @RequestBody ReserveUnitRequest request,
-            @RequestAttribute(value = "userId", required = false) Long userId,
+            @RequestBody(required = false) ReserveUnitRequest request,
             HttpServletRequest servletRequest
     ) {
-        Long effectiveUserId = userId != null ? userId : 1L; // Fallback mock for demo auth context
+        Long effectiveUserId = 1L;
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");
 
         ReservationResponse response = reservationService.createReservationLease(effectiveUserId, request);
@@ -41,13 +39,12 @@ public class CheckoutController {
                 .body(ApiResponse.ok(response, "15-minute checkout lease acquired", correlationId));
     }
 
-    @PostMapping("/confirm-payment")
+    @PostMapping(value = "/confirm-payment", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ApiResponse<OrderConfirmationResponse>> confirmPayment(
-            @Valid @RequestBody ConfirmPaymentRequest request,
-            @RequestAttribute(value = "userId", required = false) Long userId,
+            @RequestBody(required = false) ConfirmPaymentRequest request,
             HttpServletRequest servletRequest
     ) {
-        Long effectiveUserId = userId != null ? userId : 1L;
+        Long effectiveUserId = 1L;
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");
 
         OrderConfirmationResponse response = checkoutSagaService.processPaymentAndSettleOrder(effectiveUserId, request);

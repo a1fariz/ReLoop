@@ -33,7 +33,7 @@ public class CheckoutReservationService {
     @Transactional
     public ReservationResponse createReservationLease(Long userId, ReserveUnitRequest request) {
         // Step 1: Pessimistic lock row on ProductUnit
-        ProductUnit unit = productUnitRepository.findByIdForUpdate(request.unitId())
+        ProductUnit unit = productUnitRepository.findByIdForUpdate(request.getUnitId())
                 .orElseThrow(() -> new BusinessException("Product unit not found", "UNIT_NOT_FOUND", HttpStatus.NOT_FOUND));
 
         // Step 2: Strict Availability Invariant Check
@@ -54,7 +54,7 @@ public class CheckoutReservationService {
 
         // Step 4: Create new 15-minute lease
         Instant expiresAt = Instant.now().plus(LEASE_MINUTES, ChronoUnit.MINUTES);
-        UnitReservation reservation = new UnitReservation(unit.getId(), userId, request.listingId(), expiresAt);
+        UnitReservation reservation = new UnitReservation(unit.getId(), userId, request.getListingId(), expiresAt);
         reservation = reservationRepository.save(reservation);
 
         // Step 5: Mutate unit state to RESERVED

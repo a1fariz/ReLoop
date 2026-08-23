@@ -34,7 +34,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**", "/actuator/health", "/actuator/prometheus").permitAll()
-                .requestMatchers("/api/v1/catalog/**", "/api/v1/listings/**").permitAll()
+                .requestMatchers("/api/v1/catalog/**", "/api/v1/listings/**", "/api/v1/trade-in/**", "/api/v1/sellers/**", "/api/v1/checkout/**").permitAll()
                 .anyRequest().authenticated()
             );
 
