@@ -1,4 +1,4 @@
 @org.springframework.modulith.ApplicationModule(
-    allowedDependencies = {"common"}
+    type = org.springframework.modulith.ApplicationModule.Type.OPEN
 )
 package com.reloop.listings;
