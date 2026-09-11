@@ -154,6 +154,21 @@ class AuthAndCheckoutFlowIT {
                     .createNativeQuery("SELECT id FROM product_models LIMIT 1")
                     .getSingleResult();
 
+            // Self-contained seed: the seller user + store must exist before the
+            // unit/listing FKs can reference them (fresh CI databases have none).
+            entityManager.createNativeQuery("""
+                            INSERT INTO users (id, email, password_hash, full_name, role, is_verified, is_locked)
+                            VALUES (777, 'it-seller@reloop.test', 'x', 'IT Seller', 'SELLER', true, false)
+                            ON CONFLICT (id) DO NOTHING
+                            """)
+                    .executeUpdate();
+            entityManager.createNativeQuery("""
+                            INSERT INTO sellers (id, user_id, store_name, store_slug, kyc_status)
+                            VALUES (777, 777, 'IT Seller Store', 'it-seller-store', 'VERIFIED')
+                            ON CONFLICT (id) DO NOTHING
+                            """)
+                    .executeUpdate();
+
             UUID unitId = UUID.randomUUID();
             entityManager.createNativeQuery("""
                             INSERT INTO product_units (id, product_model_id, serial_number, current_owner_id,
