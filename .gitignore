@@ -8,6 +8,7 @@ frontend/node_modules/
 .next/
 frontend/.next/
 frontend/out/
+frontend/tsconfig.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -39,6 +40,10 @@ target/
 .env.*.local
 *.pem
 *.key
+
+# Local tooling
+.zcode/
+.gstack/
 
 # Database data mounts
 postgres_data/
