@@ -45,29 +45,43 @@ ReLoop is an enterprise-grade circular commerce platform built for authenticated
 
 ```text
 reloop/
-├── backend/                  # Spring Boot 3.3.4 Modular Monolith
+├── backend-quarkus/          # Quarkus 3.15 LTS Modular Monolith (primary backend)
 │   ├── src/main/java/com/reloop/
-│   │   ├── auth/             # JWT, Refresh Token Rotation, RBAC
-│   │   ├── catalog/          # Canonical ProductModels & Categories
+│   │   ├── auth/             # JWT, Refresh Token Rotation, RBAC, Redis Login Rate-Limit
+│   │   ├── catalog/          # Canonical ProductModels & Categories (Redis-cached)
 │   │   ├── units/            # Serialized ProductUnits & Physical Custody
 │   │   ├── listings/         # Verified Seller Listings & Pricing Snapshots
 │   │   ├── checkout/         # 15-min Anti-Hoarding Leases & Checkout Saga
+│   │   ├── cart/             # Read-Only Snapshot Cart (No Inventory Lock)
 │   │   ├── orders/           # Master Orders & Sub-Fulfillment Orders
+│   │   ├── payments/        # Payment Attempts, Mock Gateway & Webhook
 │   │   ├── ledger/           # Double-Entry Financial Journal & Accounts
+│   │   ├── escrow/           # Escrow Contract Views & Admin Force-Release
+│   │   ├── ownership/        # Legal Ownership Provenance Chain
 │   │   ├── tradein/          # Multiplicative Valuation Calculator
 │   │   ├── inspections/      # 50-Point Technical Grading Engine
+│   │   ├── refurbishment/    # Repair Tickets, Component Replacement & Re-Grading
 │   │   ├── warranties/       # Warranty Claims & Protection Policies
+│   │   ├── returns/          # Return Authorizations, Logistics & Refund Journal
 │   │   ├── disputes/         # Arbitrated Dispute Resolution & Split Refunds
+│   │   ├── users/            # User Profiles & KYC Verification Logs
 │   │   ├── sellers/          # Bayesian Seller Reputation Metrics
-│   │   ├── outbox/           # Transactional Outbox Poller Worker
+│   │   ├── notifications/    # In-App Notification Center + Email Outbox Bridge
+│   │   ├── outbox/           # Transactional Outbox → Kafka / Email Dispatch
 │   │   └── audit/            # Immutable Append-Only Audit Trail
-│   └── src/main/resources/db/migration/ # Flyway SQL Migrations (V1 to V8)
+│   └── src/main/resources/db/migration/ # Flyway SQL Migrations (V1 to V17)
+│
+├── backend/                  # Spring Boot 3.3.4 Modular Monolith (legacy reference)
+│   └── ...                   # Same module layout; kept until Quarkus parity is signed off
 │
 ├── frontend/                 # Next.js 14 + Tailwind + TanStack Query
 │   ├── src/app/
 │   │   ├── page.tsx          # Certified Marketplace Landing Page
 │   │   ├── catalog/          # Serialized Listing Catalog & 50-Pt Report
 │   │   ├── checkout/[id]/    # Anti-Hoarding 15-min Countdown Lease Timer
+│   │   ├── cart/             # Read-Only Snapshot Cart
+│   │   ├── returns/          # Return Request Center
+│   │   ├── notifications/    # In-App Notification Center
 │   │   ├── trade-in/         # Real-time Algorithmic Valuation Calculator
 │   │   ├── warranties/       # Customer Warranty & Dispute Center
 │   │   ├── seller/           # Seller Dashboard & Double-Entry Ledger View
@@ -99,17 +113,35 @@ Services started:
 - **Redis 7:** `localhost:6379`
 - **Mailpit:** `http://localhost:8025` (SMTP: `1025`)
 
-### 3. Run Backend (Spring Boot 3)
+### 3. Run Backend (Quarkus — recommended)
+```bash
+cd backend-quarkus
+mvn quarkus:dev
+```
+Backend starts on `http://localhost:8080` and applies Flyway migrations `V1` to `V8` automatically.
+Extras over the legacy stack: Swagger UI at [`/q/swagger-ui`](http://localhost:8080/q/swagger-ui),
+health at `/q/health`, Prometheus metrics at `/q/metrics`, Redis-backed catalog cache &
+login rate limiting, and real Kafka/email dispatch from the transactional outbox
+(`OUTBOX_DISPATCH_MODE=KAFKA` with `docker-compose.kafka.yml`).
+
+### 3b. Run Backend (Spring Boot 3 — legacy, deprecated)
 ```bash
 cd backend
 mvn spring-boot:run
 ```
-Backend starts on `http://localhost:8080` and applies Flyway migrations `V1` to `V8` automatically.
+Kept as a behavioral reference while `backend-quarkus/` is validated; both run
+against the same schema (identical Flyway migrations and JWT format).
 
 ### 4. Run Backend Test Suite
 ```bash
-cd backend
-mvn clean test
+# Quarkus backend: unit + ArchUnit boundary tests (no Docker needed)
+cd backend-quarkus && mvn clean test
+
+# Full suite including Testcontainers integration tests (requires Docker)
+cd backend-quarkus && mvn clean verify
+
+# Legacy backend
+cd backend && mvn clean test
 ```
 
 ### 5. Run Frontend (Next.js 14)
