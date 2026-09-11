@@ -56,6 +56,33 @@ services:
     environment:
       MP_MAX_MESSAGES: 500
 
+  # Quarkus backend container (legacy Spring Boot backend/ runs on the host instead).
+  # Build first:  docker compose build reloop-backend
+  reloop-backend:
+    build:
+      context: .
+      dockerfile: backend-quarkus/Dockerfile
+    image: reloop-backend-quarkus:latest
+    container_name: reloop-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: reloop-postgres
+      DB_PORT: "5432"
+      DB_USER: reloop_app
+      DB_PASSWORD: reloop_secret_password
+      REDIS_HOST: reloop-redis
+      SMTP_HOST: reloop-mailpit
+      SMTP_PORT: "1025"
+      # OUTBOX_DISPATCH_MODE: KAFKA  # enable with docker-compose.kafka.yml
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in your shell or .env}
+    depends_on:
+      reloop-postgres:
+        condition: service_healthy
+      reloop-redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   redis_data:
