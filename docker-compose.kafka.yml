@@ -1,0 +1,113 @@
+services:
+  # Apache Kafka (KRaft Mode - Single Node Cluster)
+  reloop-kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: reloop-kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://reloop-kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@reloop-kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+  # Confluent Schema Registry (Avro / JSON Schema Validation)
+  reloop-schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.0
+    container_name: reloop-schema-registry
+    depends_on:
+      - reloop-kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: reloop-schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'reloop-kafka:29092'
+
+  # Kafka UI Management Dashboard
+  reloop-kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: reloop-kafka-ui
+    depends_on:
+      - reloop-kafka
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: reloop-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: reloop-kafka:29092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://reloop-schema-registry:8081
+
+  # API Gateway
+  reloop-gateway:
+    image: nginx:alpine
+    container_name: reloop-gateway
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - reloop-postgres
+      - reloop-redis
+
+  # PostgreSQL Multi-Tenant Database
+  reloop-postgres:
+    image: postgres:16-alpine
+    container_name: reloop-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: reloop_db
+      POSTGRES_USER: reloop_app
+      POSTGRES_PASSWORD: reloop_secret_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reloop_app -d reloop_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  reloop-redis:
+    image: redis:7-alpine
+    container_name: reloop-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Mailpit
+  reloop-mailpit:
+    image: axllent/mailpit:latest
+    container_name: reloop-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    environment:
+      MP_MAX_MESSAGES: 500
+
+volumes:
+  postgres_data:
+  redis_data:
