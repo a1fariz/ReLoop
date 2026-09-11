@@ -5,6 +5,8 @@ import com.reloop.checkout.dto.ReserveUnitRequest;
 import com.reloop.checkout.repository.UnitReservationRepository;
 import com.reloop.checkout.service.CheckoutReservationService;
 import com.reloop.common.exception.BusinessException;
+import com.reloop.listings.domain.Listing;
+import com.reloop.listings.repository.ListingRepository;
 import com.reloop.units.domain.ProductUnit;
 import com.reloop.units.repository.ProductUnitRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +32,9 @@ class CheckoutReservationServiceTest {
     private ProductUnitRepository productUnitRepository;
 
     @Mock
+    private ListingRepository listingRepository;
+
+    @Mock
     private UnitReservationRepository reservationRepository;
 
     @InjectMocks
@@ -41,8 +46,11 @@ class CheckoutReservationServiceTest {
         UUID unitId = UUID.randomUUID();
         UUID listingId = UUID.randomUUID();
         ProductUnit unit = new ProductUnit(UUID.randomUUID(), "SN123456", 100L, ProductUnit.UnitStatus.AVAILABLE, "A+");
+        org.springframework.test.util.ReflectionTestUtils.setField(unit, "id", unitId);
+        Listing listing = new Listing(unitId, 100L, "iPhone", "desc", new java.math.BigDecimal("1000"), "A+");
 
         when(productUnitRepository.findByIdForUpdate(unitId)).thenReturn(Optional.of(unit));
+        when(listingRepository.findById(listingId)).thenReturn(Optional.of(listing));
         when(reservationRepository.findByUnitIdAndStatus(unit.getId(), UnitReservation.ReservationStatus.ACTIVE)).thenReturn(Optional.empty());
         when(reservationRepository.save(any(UnitReservation.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -60,11 +68,31 @@ class CheckoutReservationServiceTest {
         UUID unitId = UUID.randomUUID();
         UUID listingId = UUID.randomUUID();
         ProductUnit unit = new ProductUnit(UUID.randomUUID(), "SN123456", 100L, ProductUnit.UnitStatus.SOLD, "A+");
+        org.springframework.test.util.ReflectionTestUtils.setField(unit, "id", unitId);
+        Listing listing = new Listing(unitId, 100L, "iPhone", "desc", new java.math.BigDecimal("1000"), "A+");
 
         when(productUnitRepository.findByIdForUpdate(unitId)).thenReturn(Optional.of(unit));
+        when(listingRepository.findById(listingId)).thenReturn(Optional.of(listing));
 
         assertThatThrownBy(() -> reservationService.createReservationLease(1L, new ReserveUnitRequest(unitId, listingId)))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("not available for reservation");
+    }
+
+    @Test
+    @DisplayName("Should reject reservation if listing does not match unit or is not ACTIVE")
+    void testRejectMismatchedListing() {
+        UUID unitId = UUID.randomUUID();
+        UUID listingId = UUID.randomUUID();
+        ProductUnit unit = new ProductUnit(UUID.randomUUID(), "SN123456", 100L, ProductUnit.UnitStatus.AVAILABLE, "A+");
+        Listing listing = new Listing(UUID.randomUUID(), 100L, "iPhone", "desc", new java.math.BigDecimal("1000"), "A+");
+        org.springframework.test.util.ReflectionTestUtils.setField(listing, "id", listingId);
+
+        when(productUnitRepository.findByIdForUpdate(unitId)).thenReturn(Optional.of(unit));
+        when(listingRepository.findById(listingId)).thenReturn(Optional.of(listing));
+
+        assertThatThrownBy(() -> reservationService.createReservationLease(1L, new ReserveUnitRequest(unitId, listingId)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Listing is not active for this product unit");
     }
 }

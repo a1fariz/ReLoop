@@ -5,6 +5,7 @@ import com.reloop.warranties.dto.WarrantyDto;
 import com.reloop.warranties.service.WarrantyService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,12 +22,11 @@ public class WarrantyController {
 
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<List<WarrantyDto>>> getMyWarranties(
-            @RequestAttribute(value = "userId", required = false) Long userId,
+            @AuthenticationPrincipal Long userId,
             HttpServletRequest request
     ) {
-        Long effectiveUserId = userId != null ? userId : 1L;
         String correlationId = (String) request.getAttribute("X-Correlation-ID");
-        return ResponseEntity.ok(ApiResponse.ok(warrantyService.getUserWarranties(effectiveUserId), correlationId));
+        return ResponseEntity.ok(ApiResponse.ok(warrantyService.getUserWarranties(userId), correlationId));
     }
 
     @GetMapping("/unit/{unitId}")

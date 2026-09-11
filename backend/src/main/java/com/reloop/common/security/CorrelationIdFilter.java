@@ -24,6 +24,13 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         String correlationId = request.getHeader(CORRELATION_ID_HEADER);
         if (correlationId == null || correlationId.isBlank()) {
             correlationId = UUID.randomUUID().toString();
+        } else {
+            try {
+                correlationId = UUID.fromString(correlationId).toString();
+            } catch (IllegalArgumentException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "X-Correlation-ID must be a UUID");
+                return;
+            }
         }
 
         request.setAttribute(CORRELATION_ID_HEADER, correlationId);

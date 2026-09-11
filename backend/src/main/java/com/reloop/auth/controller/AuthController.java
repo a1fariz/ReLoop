@@ -3,6 +3,7 @@ package com.reloop.auth.controller;
 import com.reloop.auth.dto.AuthResponse;
 import com.reloop.auth.dto.LoginRequest;
 import com.reloop.auth.dto.RegisterRequest;
+import com.reloop.auth.dto.RefreshTokenRequest;
 import com.reloop.auth.service.AuthService;
 import com.reloop.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,11 +44,11 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(
-            @RequestParam String refreshToken,
+            @RequestBody @Valid RefreshTokenRequest request,
             HttpServletRequest servletRequest
     ) {
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");
-        AuthResponse response = authService.refreshToken(refreshToken);
+        AuthResponse response = authService.refreshToken(request.refreshToken());
         return ResponseEntity.ok(ApiResponse.ok(response, "Token refreshed", correlationId));
     }
 }

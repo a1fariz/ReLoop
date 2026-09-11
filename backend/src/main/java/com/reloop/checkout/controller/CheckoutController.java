@@ -10,6 +10,7 @@ import com.reloop.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,26 +29,27 @@ public class CheckoutController {
 
     @PostMapping(value = "/reserve", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ApiResponse<ReservationResponse>> createReservation(
+            @AuthenticationPrincipal Long userId,
             @RequestBody(required = false) ReserveUnitRequest request,
             HttpServletRequest servletRequest
     ) {
-        Long effectiveUserId = 1L;
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");
 
-        ReservationResponse response = reservationService.createReservationLease(effectiveUserId, request);
+        ReservationResponse response = reservationService.createReservationLease(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(response, "15-minute checkout lease acquired", correlationId));
     }
 
     @PostMapping(value = "/confirm-payment", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ApiResponse<OrderConfirmationResponse>> confirmPayment(
+            @AuthenticationPrincipal Long userId,
             @RequestBody(required = false) ConfirmPaymentRequest request,
             HttpServletRequest servletRequest
     ) {
-        Long effectiveUserId = 1L;
         String correlationId = (String) servletRequest.getAttribute("X-Correlation-ID");
+        String idempotencyKey = servletRequest.getHeader("Idempotency-Key");
 
-        OrderConfirmationResponse response = checkoutSagaService.processPaymentAndSettleOrder(effectiveUserId, request);
+        OrderConfirmationResponse response = checkoutSagaService.processPaymentAndSettleOrder(userId, request, idempotencyKey);
         return ResponseEntity.ok(ApiResponse.ok(response, "Payment confirmed and escrow held", correlationId));
     }
 }

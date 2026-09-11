@@ -5,6 +5,8 @@ import com.reloop.checkout.dto.ReservationResponse;
 import com.reloop.checkout.dto.ReserveUnitRequest;
 import com.reloop.checkout.repository.UnitReservationRepository;
 import com.reloop.common.exception.BusinessException;
+import com.reloop.listings.domain.Listing;
+import com.reloop.listings.repository.ListingRepository;
 import com.reloop.units.domain.ProductUnit;
 import com.reloop.units.repository.ProductUnitRepository;
 import org.springframework.http.HttpStatus;
@@ -20,13 +22,16 @@ public class CheckoutReservationService {
     private static final int LEASE_MINUTES = 15;
 
     private final ProductUnitRepository productUnitRepository;
+    private final ListingRepository listingRepository;
     private final UnitReservationRepository reservationRepository;
 
     public CheckoutReservationService(
             ProductUnitRepository productUnitRepository,
+            ListingRepository listingRepository,
             UnitReservationRepository reservationRepository
     ) {
         this.productUnitRepository = productUnitRepository;
+        this.listingRepository = listingRepository;
         this.reservationRepository = reservationRepository;
     }
 
@@ -36,12 +41,19 @@ public class CheckoutReservationService {
         ProductUnit unit = productUnitRepository.findByIdForUpdate(request.getUnitId())
                 .orElseThrow(() -> new BusinessException("Product unit not found", "UNIT_NOT_FOUND", HttpStatus.NOT_FOUND));
 
-        // Step 2: Strict Availability Invariant Check
+        // Step 2: Listing must be active and belong to this unit.
+        Listing listing = listingRepository.findById(request.getListingId())
+                .orElseThrow(() -> new BusinessException("Listing not found", "LISTING_NOT_FOUND", HttpStatus.NOT_FOUND));
+        if (!listing.getUnitId().equals(unit.getId()) || listing.getStatus() != Listing.ListingStatus.ACTIVE) {
+            throw new BusinessException("Listing is not active for this product unit", "LISTING_NOT_ACTIVE", HttpStatus.CONFLICT);
+        }
+
+        // Step 3: Strict Availability Invariant Check
         if (unit.getStatus() != ProductUnit.UnitStatus.AVAILABLE && unit.getStatus() != ProductUnit.UnitStatus.LISTED) {
             throw new BusinessException("Product unit is not available for reservation", "UNIT_NOT_AVAILABLE", HttpStatus.CONFLICT);
         }
 
-        // Step 3: Check for existing active reservation
+        // Step 4: Check for existing active reservation
         reservationRepository.findByUnitIdAndStatus(unit.getId(), UnitReservation.ReservationStatus.ACTIVE)
                 .ifPresent(r -> {
                     if (r.getExpiresAt().isAfter(Instant.now())) {

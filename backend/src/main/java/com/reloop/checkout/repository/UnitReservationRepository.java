@@ -1,7 +1,9 @@
 package com.reloop.checkout.repository;
 
 import com.reloop.checkout.domain.UnitReservation;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,11 @@ import java.util.UUID;
 @Repository
 public interface UnitReservationRepository extends JpaRepository<UnitReservation, UUID> {
     Optional<UnitReservation> findByToken(UUID token);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM UnitReservation r WHERE r.token = :token")
+    Optional<UnitReservation> findByTokenForUpdate(UUID token);
+
     Optional<UnitReservation> findByUnitIdAndStatus(UUID unitId, UnitReservation.ReservationStatus status);
 
     @Query(value = "SELECT * FROM unit_reservations WHERE status = 'ACTIVE' AND expires_at < :now ORDER BY id ASC FOR UPDATE SKIP LOCKED LIMIT 100", nativeQuery = true)

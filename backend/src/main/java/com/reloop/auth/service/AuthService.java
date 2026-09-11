@@ -51,19 +51,12 @@ public class AuthService {
             throw new BusinessException("Email already registered", "EMAIL_ALREADY_EXISTS", HttpStatus.CONFLICT);
         }
 
-        User.Role role = User.Role.CUSTOMER;
-        if (request.role() != null) {
-            try {
-                role = User.Role.valueOf(request.role().toUpperCase());
-            } catch (IllegalArgumentException ignored) {}
-        }
-
         User user = new User(
                 normalizedEmail,
                 passwordEncoder.encode(request.password()),
                 request.fullName().trim(),
                 request.phoneNumber(),
-                role
+                User.Role.CUSTOMER
         );
         user = userRepository.save(user);
 
