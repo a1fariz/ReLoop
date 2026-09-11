@@ -1,0 +1,40 @@
+# Render Blueprint — ReLoop Quarkus backend
+# Deploys the JVM container from backend-quarkus/Dockerfile (build context: repo root).
+# Frontend runs on Vercel; Postgres on Neon; Redis on Upstash (external free tiers).
+services:
+  - type: web
+    name: reloop-backend
+    runtime: docker
+    dockerfilePath: ./backend-quarkus/Dockerfile
+    dockerContext: .
+    plan: free
+    region: singapore
+    healthCheckPath: /q/health
+    autoDeploy: true
+    envVars:
+      # Neon PostgreSQL (split from the pooled connection string)
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      # Upstash Redis (TLS, rediss:// URL with embedded credentials)
+      - key: REDIS_URL
+        sync: false
+      # Security
+      - key: JWT_SECRET
+        generateValue: true
+      # Outbox: LOG mode (no Kafka broker in the cloud demo)
+      - key: OUTBOX_DISPATCH_MODE
+        value: LOG
+      # Email dispatch disabled in the demo (no SMTP provider)
+      - key: MAIL_ENABLED
+        value: "false"
+      # CORS: deployed frontend origin
+      - key: CORS_ORIGINS
+        value: https://reloop.alfarizi.my.id,https://reloop.vercel.app
