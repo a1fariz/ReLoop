@@ -23,6 +23,8 @@ services:
         sync: false
       - key: DB_NAME
         sync: false
+      - key: DB_SSLMODE
+        value: require
       # Upstash Redis (TLS, rediss:// URL with embedded credentials)
       - key: REDIS_URL
         sync: false
