@@ -1,18 +1,20 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ArrowUpRight, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, AlertCircle, CheckCircle2, Lock, RefreshCw } from 'lucide-react';
 import { getListing, reserveUnit, confirmPayment } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
+import { useAuthStore } from '@/lib/auth';
 
 type Reservation = { token: string; remainingSeconds: number };
 type Order = { orderNumber: string; totalAmount: number; paymentStatus: string; escrowStatus: string };
 
 export default function CheckoutPage({ params }: { params: { id: string } }) {
   const t = useT();
+  const { accessToken } = useAuthStore();
   const [reservation, setReservation] = useState<Reservation>();
   const [order, setOrder] = useState<Order>();
   const [address, setAddress] = useState('');
@@ -21,32 +23,35 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Listing detail supplies the unitId required by POST /checkout/reserve
-  const { data: listing } = useQuery({
+  const { data: listing, isError: listingError, refetch: refetchListing } = useQuery({
     queryKey: queryKeys.listings.detail(params.id),
     queryFn: () => getListing(params.id),
     retry: 1,
   });
 
-  useEffect(() => {
-    if (!listing) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await reserveUnit({ unitId: listing.unitId, listingId: listing.id });
-        if (!cancelled) setReservation({ token: res.token, remainingSeconds: res.remainingSeconds });
-      } catch (err: any) {
-        if (!cancelled) setReserveError(err.response?.data?.message || t('checkout_reserve_fail'));
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [listing]);
+  const reserve = useCallback(async () => {
+    if (!listing || !accessToken) return;
+    setLoading(true);
+    setReserveError('');
+    setReservation(undefined);
+    try {
+      const res = await reserveUnit({ unitId: listing.unitId, listingId: listing.id });
+      setReservation({ token: res.token, remainingSeconds: res.remainingSeconds });
+    } catch (err: any) {
+      setReserveError(err.response?.data?.message || t('checkout_reserve_fail'));
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken, listing, t]);
+
+  useEffect(() => { void reserve(); }, [reserve]);
 
   useEffect(() => {
     if (!reservation || reservation.remainingSeconds <= 0) return;
-    const timer = window.setInterval(() => setReservation((current) => current && { ...current, remainingSeconds: Math.max(0, current.remainingSeconds - 1) }), 1000);
+    const timer = window.setInterval(() => setReservation((current) => current && {
+      ...current,
+      remainingSeconds: Math.max(0, current.remainingSeconds - 1),
+    }), 1000);
     return () => window.clearInterval(timer);
   }, [reservation]);
 
@@ -55,24 +60,62 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
     if (!reservation || !address.trim()) { setError(t('checkout_enter_address')); return; }
     setError(''); setSubmitting(true);
     try {
-      const confirmation = await confirmPayment({
-        reservationToken: reservation.token,
-        paymentMethod: 'ESCROW',
-        shippingAddress: address.trim(),
-      });
-      setOrder(confirmation);
+      setOrder(await confirmPayment({ reservationToken: reservation.token, paymentMethod: 'ESCROW', shippingAddress: address.trim() }));
     } catch (err: any) {
       setError(err.response?.data?.message || t('checkout_confirm_fail'));
     } finally { setSubmitting(false); }
   }
 
+  if (!accessToken) {
+    return (
+      <main className="min-h-screen bg-[#fafaf9] px-4 py-24 text-center ambient-light-mesh">
+        <Lock className="mx-auto mb-4 h-10 w-10 text-stone-400" />
+        <h1 className="text-2xl font-bold text-stone-950">{t('checkout_sign_in')}</h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-stone-600">{t('checkout_sign_in_desc')}</p>
+        <Link href={`/login?next=/checkout/${params.id}`} className="btn-blue mt-6 px-6 py-3 text-xs">{t('nav_sign_in')}</Link>
+      </main>
+    );
+  }
+
   const time = reservation ? `${String(Math.floor(reservation.remainingSeconds / 60)).padStart(2, '0')}:${String(reservation.remainingSeconds % 60).padStart(2, '0')}` : '--:--';
   const displayError = error || reserveError;
-  return <div className="min-h-screen bg-[#fafafa] text-zinc-900 py-12 sm:py-16 ambient-light-mesh"><div className="container mx-auto px-4 sm:px-6 max-w-3xl">
-    <Link href="/catalog" className="editorial-link mb-8 inline-flex"><ArrowLeft className="h-3 w-3" />{t('checkout_return')}</Link>
-    {order ? <section aria-live="polite" className="bg-white border border-zinc-200 rounded-3xl p-8 sm:p-12 text-center space-y-5 shadow-sm"><CheckCircle2 className="h-12 w-12 text-emerald-600 mx-auto" /><h1 className="text-3xl font-bold">{t('checkout_confirmed')}</h1><p className="text-sm text-zinc-600"><strong>{order.orderNumber}</strong> {t('checkout_recorded')} {order.paymentStatus}. {t('checkout_escrow')}: {order.escrowStatus}.</p><div className="flex flex-wrap justify-center gap-3 pt-2"><Link href="/orders" className="inline-flex btn-blue px-6 py-3 text-xs">{t('checkout_view_orders')}</Link><Link href="/catalog" className="inline-flex btn-primary-dark px-6 py-3 text-xs">{t('checkout_back_market')}</Link></div></section> : <>
-      <section className="bg-white border border-zinc-200 rounded-3xl p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"><div><p className="text-xs font-mono uppercase tracking-widest text-sky-600 font-semibold">{t('checkout_reservation')}</p><h1 className="text-xl font-bold mt-1">{loading ? t('checkout_reserving') : reservation ? t('checkout_active') : t('checkout_unavailable')}</h1>{listing && <p className="text-sm text-zinc-600 mt-1">{listing.title} • {t('common_grade')} {listing.gradeSnapshot} • Rp {listing.askingPrice.toLocaleString('id-ID')}</p>}</div><time className="font-mono text-3xl font-bold bg-zinc-50 border border-zinc-200 px-5 py-3 rounded-2xl">{time}</time></section>
-      {displayError && <div role="alert" className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 flex gap-2"><AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />{displayError}</div>}
-      <form onSubmit={handleConfirmPayment} className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm"><div><p className="text-xs font-mono uppercase tracking-widest text-sky-600 font-semibold">{t('checkout_destination')}</p><label htmlFor="address" className="block mt-5 mb-2 text-sm font-semibold">{t('checkout_address')}</label><textarea id="address" required value={address} onChange={(e) => setAddress(e.target.value)} rows={4} className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500" placeholder={t('checkout_address_placeholder')} /></div><div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 flex gap-3 text-sm"><Lock className="h-5 w-5 text-sky-600 shrink-0" /><span>{t('checkout_escrow_note')}</span></div><button type="submit" disabled={!reservation || reservation.remainingSeconds === 0 || submitting} aria-busy={submitting} className="w-full btn-blue py-4 text-sm disabled:opacity-60 disabled:cursor-not-allowed">{submitting ? t('checkout_confirming') : t('checkout_confirm')} <ArrowUpRight className="inline h-4 w-4 ml-1" /></button></form>
-    </>}</div></div>;
+
+  return (
+    <main className="min-h-screen bg-[#fafaf9] py-10 text-stone-950 sm:py-16 ambient-light-mesh">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <Link href="/catalog" className="editorial-link mb-8 inline-flex"><ArrowLeft className="h-3 w-3" />{t('checkout_return')}</Link>
+        {order ? (
+          <section aria-live="polite" className="mx-auto max-w-2xl rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm sm:p-12">
+            <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
+            <h1 className="mt-5 text-3xl font-bold">{t('checkout_confirmed')}</h1>
+            <p className="mt-3 text-sm leading-6 text-stone-600"><strong>{order.orderNumber}</strong> {t('checkout_recorded')} {order.paymentStatus}. {t('checkout_escrow')}: {order.escrowStatus}.</p>
+            <div className="flex flex-col justify-center gap-3 pt-6 sm:flex-row"><Link href="/orders" className="btn-blue px-6 py-3 text-xs">{t('checkout_view_orders')}</Link><Link href="/catalog" className="btn-primary-dark px-6 py-3 text-xs">{t('checkout_back_market')}</Link></div>
+          </section>
+        ) : !listing && !listingError ? (
+          <div className="h-64 animate-pulse rounded-3xl bg-stone-200" />
+        ) : listingError ? (
+          <section role="alert" className="rounded-3xl border border-red-200 bg-red-50 p-8 text-center text-red-800"><AlertCircle className="mx-auto mb-3 h-8 w-8" /><p>{t('common_error_generic')}</p><button onClick={() => void refetchListing()} className="btn-primary-dark mt-5 px-5 py-3 text-xs">{t('common_try_again')}</button></section>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1fr_0.72fr]">
+            <section className="space-y-6">
+              <div className="flex flex-col justify-between gap-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center">
+                <div><p className="text-xs font-mono uppercase tracking-widest text-sky-800 font-semibold">{t('checkout_reservation')}</p><h1 className="mt-1 text-xl font-bold">{loading ? t('checkout_reserving') : reservation ? t('checkout_active') : t('checkout_unavailable')}</h1><p className="mt-1 text-sm text-stone-600">{listing?.title} · {t('common_grade')} {listing?.gradeSnapshot}</p></div>
+                <time aria-label={t('checkout_time_remaining')} className="rounded-2xl border border-stone-200 bg-stone-50 px-5 py-3 text-center font-mono text-3xl font-bold">{time}</time>
+              </div>
+              {displayError && <div role="alert" className="flex gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /><span>{displayError}</span></div>}
+              {reserveError ? <div className="flex flex-col gap-3 sm:flex-row"><button onClick={() => void reserve()} className="btn-blue px-5 py-3 text-xs"><RefreshCw className="mr-2 h-4 w-4" />{t('checkout_retry')}</button><Link href="/catalog" className="btn-primary-dark px-5 py-3 text-xs">{t('checkout_back_market')}</Link></div> : (
+                <form onSubmit={handleConfirmPayment} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+                  <p className="text-xs font-mono uppercase tracking-widest text-sky-800 font-semibold">{t('checkout_destination')}</p><label htmlFor="address" className="mt-5 mb-2 block text-sm font-semibold">{t('checkout_address')}</label><textarea id="address" required value={address} onChange={(e) => setAddress(e.target.value)} rows={4} className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-700" placeholder={t('checkout_address_placeholder')} />
+                  <div className="mt-6 flex gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950"><Lock className="h-5 w-5 shrink-0 text-sky-700" /><span>{t('checkout_escrow_note')}</span></div><button type="submit" disabled={!reservation || reservation.remainingSeconds === 0 || submitting} aria-busy={submitting} className="btn-blue mt-6 w-full py-4 text-sm">{submitting ? t('checkout_confirming') : t('checkout_confirm')} <ArrowUpRight className="ml-1 inline h-4 w-4" /></button>
+                </form>
+              )}
+            </section>
+            <aside className="h-fit rounded-3xl border border-stone-200 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+              <p className="text-xs font-mono uppercase tracking-widest text-amber-700">{t('checkout_summary')}</p><h2 className="mt-2 text-lg font-bold">{listing?.title}</h2><dl className="mt-6 space-y-3 text-sm"><div className="flex justify-between gap-4"><dt className="text-stone-600">{t('checkout_item')}</dt><dd className="font-mono">Rp {listing?.askingPrice.toLocaleString('id-ID')}</dd></div><div className="flex justify-between gap-4"><dt className="text-stone-600">{t('checkout_shipping')}</dt><dd>{t('checkout_shipping_free')}</dd></div><div className="flex justify-between gap-4 border-t border-stone-200 pt-3 font-bold"><dt>{t('checkout_total')}</dt><dd className="font-mono">Rp {listing?.askingPrice.toLocaleString('id-ID')}</dd></div></dl>
+            </aside>
+          </div>
+        )}
+      </div>
+    </main>
+  );
 }

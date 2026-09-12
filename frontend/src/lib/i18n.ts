@@ -123,6 +123,15 @@ const dict = {
   checkout_view_orders: { id: 'Lihat Pesanan Saya', en: 'View My Orders' },
   checkout_back_market: { id: 'Kembali ke Marketplace', en: 'Back to Marketplace' },
   checkout_return: { id: 'Kembali ke Indeks Marketplace', en: 'Return to Marketplace Index' },
+  checkout_sign_in: { id: 'Masuk untuk melanjutkan checkout', en: 'Sign in to continue checkout' },
+  checkout_sign_in_desc: { id: 'Reservasi unit hanya bisa dibuat untuk pengguna yang sudah masuk.', en: 'Unit reservations are available only to signed-in users.' },
+  checkout_retry: { id: 'Coba Reservasi Lagi', en: 'Retry Reservation' },
+  checkout_summary: { id: 'Ringkasan Pesanan', en: 'Order Summary' },
+  checkout_item: { id: 'Harga unit', en: 'Item price' },
+  checkout_shipping: { id: 'Pengiriman', en: 'Shipping' },
+  checkout_shipping_free: { id: 'Gratis', en: 'Free' },
+  checkout_total: { id: 'Total', en: 'Total' },
+  checkout_time_remaining: { id: 'Sisa waktu reservasi', en: 'Reservation time remaining' },
 
   // Orders
   orders_buyer_account: { id: 'Akun Pembeli', en: 'Buyer Account' },
