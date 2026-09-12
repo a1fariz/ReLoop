@@ -148,7 +148,22 @@ export default function SellerHubPage() {
             {listingsPending && <div className="h-40 rounded-3xl bg-zinc-100 animate-pulse" />}
 
             {listings && (
-              <div className="overflow-x-auto bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm">
+              <>
+              <div className="space-y-3 md:hidden">
+                {listings.map((l: ListingDto) => (
+                  <article key={l.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <div><h4 className="font-bold text-zinc-900">{l.title}</h4><p className="mt-1 font-mono text-[10px] text-zinc-500">{l.id.slice(0, 8)} · unit {l.unitId.slice(0, 8)}</p></div>
+                      <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold ${STATUS_STYLES[l.status] ?? 'text-zinc-700 bg-zinc-50 border-zinc-200'}`}>{l.status}</span>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
+                      <span className="font-mono text-sm font-bold">Rp {l.askingPrice.toLocaleString('id-ID')} · {t('common_grade')} {l.gradeSnapshot}</span>
+                      {l.status === 'ACTIVE' ? (<button onClick={() => pauseMutation.mutate(l.id)} disabled={pauseMutation.isPending} className="rounded-full border border-amber-200 px-3 py-1.5 text-[10px] font-bold text-amber-700">{t('seller_pause')}</button>) : l.status === 'PAUSED' ? (<button onClick={() => resumeMutation.mutate(l.id)} disabled={resumeMutation.isPending} className="rounded-full border border-emerald-200 px-3 py-1.5 text-[10px] font-bold text-emerald-700">{t('seller_resume')}</button>) : (<span className="text-[10px] font-mono text-zinc-400">—</span>)}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm md:block">
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-zinc-200 text-[10px] text-zinc-500 uppercase tracking-wider font-mono font-semibold">
@@ -197,6 +212,7 @@ export default function SellerHubPage() {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
 
             <SellerReviewsPanel sellerId={userId as number} />
@@ -207,7 +223,23 @@ export default function SellerHubPage() {
             {ordersPending && <div className="h-40 rounded-3xl bg-zinc-100 animate-pulse" />}
 
             {fulfillments && (
-              <div className="overflow-x-auto bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm">
+              <>
+              <div className="space-y-3 md:hidden">
+                {fulfillments.items.map((f: FulfillmentOrderDto) => (
+                  <article key={f.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <div><p className="font-mono text-[10px] text-zinc-500">{f.id.slice(0, 8)} · unit {f.unitId.slice(0, 8)}</p><p className="mt-1 font-mono text-sm font-bold text-emerald-600">Rp {f.sellerNetAmount.toLocaleString('id-ID')}</p></div>
+                      <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold ${FULFILLMENT_STYLES[f.fulfillmentStatus] ?? 'text-zinc-700 bg-zinc-50 border-zinc-200'}`}>{f.fulfillmentStatus}</span>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
+                      <span className="font-mono text-[10px] text-zinc-500">{t('seller_escrow')}: {f.escrowStatus}{f.trackingNumber ? ` · ${f.courierName} · ${f.trackingNumber}` : ''}</span>
+                      {f.fulfillmentStatus === 'PROCESSING' ? (<button onClick={() => setShipTarget(f)} className="rounded-full bg-zinc-900 px-3 py-1.5 text-[10px] font-bold text-white">{t('seller_ship')}</button>) : <span className="text-[10px] font-mono text-zinc-400">—</span>}
+                    </div>
+                  </article>
+                ))}
+                {fulfillments.items.length === 0 && <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500">{t('seller_no_fulfillments')}</div>}
+              </div>
+              <div className="hidden overflow-x-auto rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm md:block">
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-zinc-200 text-[10px] text-zinc-500 uppercase tracking-wider font-mono font-semibold">
@@ -243,6 +275,7 @@ export default function SellerHubPage() {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </div>
         )}
