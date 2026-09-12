@@ -46,6 +46,8 @@ const dict = {
   footer_protection: { id: 'Jaminan Perlindungan', en: 'Protection Guarantees' },
   footer_dispute: { id: 'Arbitrasi Sengketa', en: 'Dispute Arbitration' },
   footer_ledger: { id: 'Ledger Double-Entry', en: 'Double-Entry Ledger' },
+  footer_help: { id: 'Bantuan', en: 'Help' },
+  footer_contact: { id: 'Hubungi kami', en: 'Contact us' },
 
   // Common
   common_prev: { id: '← Sebelumnya', en: '← Prev' },

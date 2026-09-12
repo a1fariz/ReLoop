@@ -2,15 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 
 export function Footer() {
   const t = useT();
   return (
     <footer className="border-t border-black/[0.08] bg-[#f5f5f7] text-[#86868b] text-xs py-16">
-      <div className="container mx-auto px-6 max-w-7xl">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
+         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-10 mb-14">
           <div className="col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2 font-bold text-sm tracking-tight text-[#1d1d1f]">
               <span className="font-mono text-xs uppercase tracking-widest text-[#0071e3]">[01]</span>
@@ -40,13 +39,13 @@ export function Footer() {
           </div>
 
           <div>
-            <div className="font-bold text-[#1d1d1f] mb-4 text-xs uppercase tracking-widest font-mono">Architecture</div>
-            <ul className="space-y-2.5 font-mono text-[11px]">
-              <li><a href="https://github.com/a1fariz/ReLoop" target="_blank" rel="noreferrer" className="hover:text-[#1d1d1f] transition-colors flex items-center gap-1">Quarkus <ArrowUpRight className="h-3 w-3" /></a></li>
-              <li><a href="https://github.com/a1fariz/ReLoop" target="_blank" rel="noreferrer" className="hover:text-[#1d1d1f] transition-colors flex items-center gap-1">PostgreSQL 16 <ArrowUpRight className="h-3 w-3" /></a></li>
-              <li><a href="https://github.com/a1fariz/ReLoop" target="_blank" rel="noreferrer" className="hover:text-[#1d1d1f] transition-colors flex items-center gap-1">Next.js 14 <ArrowUpRight className="h-3 w-3" /></a></li>
-            </ul>
-          </div>
+             <div className="font-bold text-[#1d1d1f] mb-4 text-xs uppercase tracking-widest font-mono">{t('footer_help')}</div>
+             <ul className="space-y-2.5 text-sm">
+               <li><Link href="/returns" className="hover:text-[#1d1d1f] transition-colors">{t('nav_returns')}</Link></li>
+               <li><Link href="/warranties" className="hover:text-[#1d1d1f] transition-colors">{t('footer_protection')}</Link></li>
+               <li><a href="mailto:alfarizi.developer@gmail.com" className="hover:text-[#1d1d1f] transition-colors">{t('footer_contact')}</a></li>
+             </ul>
+           </div>
         </div>
 
         <div className="border-t border-black/[0.08] pt-8 flex flex-col sm:flex-row items-center justify-between text-[#86868b] text-[11px] font-mono">
