@@ -1,36 +1,14 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
-import { motion, useInView } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
+import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { RotatingHardwareShowcase } from '@/components/RotatingHardwareShowcase';
-import { TelemetryStreamHUD } from '@/components/TelemetryStreamHUD';
 import { apiErrorMessage, searchListings } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import type { ListingDto } from '@/types/api';
-
-function useCounter(end: number, duration = 2000, startOnView = true) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
-
-  useEffect(() => {
-    if (!startOnView || !isInView) return;
-    let startTime = 0;
-    const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / duration, 1);
-      setCount(Math.floor(progress * end));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [isInView, end, duration, startOnView]);
-
-  return { count, ref };
-}
 
 function FadeInView({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null);
@@ -60,11 +38,6 @@ function parseImages(images: string | null): string[] {
 
 export default function HomePage() {
   const t = useT();
-  const stat1 = useCounter(50, 1500);
-  const stat2 = useCounter(15, 1200);
-  const stat3 = useCounter(100, 1800);
-  const stat4 = useCounter(0, 800);
-
   // Real live listings — replaces the hardcoded showcase
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: queryKeys.listings.search({ page: 0, size: 6, sort: 'newest' }),
@@ -95,16 +68,14 @@ export default function HomePage() {
           </FadeInView>
         </div>
         <FadeInView delay={0.15} className="min-w-0">
-          <RotatingHardwareShowcase />
+          <div className="relative overflow-hidden rounded-[2rem] border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
+            <div className="aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-stone-100">
+              {showcaseItems[0] && parseImages(showcaseItems[0].images)[0] ? <img src={parseImages(showcaseItems[0].images)[0]} alt={showcaseItems[0].title} className="h-full w-full object-contain p-8" /> : <div className="flex h-full items-center justify-center text-sm text-stone-500">{t('home_empty')}</div>}
+            </div>
+            {showcaseItems[0] && <div className="flex items-end justify-between gap-4 px-2 pt-5"><div><p className="text-xs font-mono uppercase tracking-wider text-stone-500">{t('common_grade')} {showcaseItems[0].gradeSnapshot}</p><h2 className="mt-1 line-clamp-2 text-lg font-bold text-stone-950">{showcaseItems[0].title}</h2></div><Link href={`/catalog/${showcaseItems[0].id}`} className="shrink-0 text-sm font-semibold text-sky-800">{t('catalog_inspect')} <ArrowRight className="inline h-4 w-4" /></Link></div>}
+          </div>
         </FadeInView>
       </section>
-
-      {/* Live Telemetry */}
-      <FadeInView>
-        <section className="container mx-auto px-6 max-w-7xl pb-24">
-          <TelemetryStreamHUD />
-        </section>
-      </FadeInView>
 
       {/* Live listings grid */}
       <section className="container mx-auto px-6 max-w-7xl pb-28">
@@ -183,38 +154,13 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Animated KPI Protocol Pillars */}
-      <section className="bg-stone-100/80 border-t border-stone-200 py-24">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-6">
-            <FadeInView delay={0}>
-              <div ref={stat1.ref} className="p-6 rounded-3xl bg-white border border-stone-200 space-y-2 shadow-sm text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-zinc-900 font-mono tnum">{stat1.count}</div>
-                <div className="text-xs text-[#86868b] font-semibold">Point Diagnostic Gates</div>
-              </div>
-            </FadeInView>
-
-            <FadeInView delay={0.1}>
-              <div ref={stat2.ref} className="p-6 rounded-3xl bg-white border border-stone-200 space-y-2 shadow-sm text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-zinc-900 font-mono tnum">{stat2.count} <span className="text-lg text-[#86868b]">min</span></div>
-                <div className="text-xs text-[#86868b] font-semibold">Row-Locked Lease</div>
-              </div>
-            </FadeInView>
-
-            <FadeInView delay={0.2}>
-              <div ref={stat3.ref} className="p-6 rounded-3xl bg-white border border-stone-200 space-y-2 shadow-sm text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-zinc-900 font-mono tnum">{stat3.count}%</div>
-                <div className="text-xs text-[#86868b] font-semibold">Double-Entry Escrow</div>
-              </div>
-            </FadeInView>
-
-            <FadeInView delay={0.3}>
-              <div ref={stat4.ref} className="p-6 rounded-3xl bg-white border border-stone-200 space-y-2 shadow-sm text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-emerald-600 font-mono tnum">{stat4.count}.00%</div>
-                <div className="text-xs text-[#86868b] font-semibold">Unresolved Disputes</div>
-              </div>
-            </FadeInView>
-          </div>
+      <section className="border-t border-stone-200 bg-stone-100/80 py-20 sm:py-24">
+        <div className="mx-auto grid max-w-6xl gap-4 px-5 sm:px-8 md:grid-cols-3">
+          {[
+            ['01', 'Inspect before buying', 'See condition, grade, and available evidence before you commit.'],
+            ['02', 'Reserve at checkout', 'The server confirms availability when you start checkout.'],
+            ['03', 'Track after purchase', 'Orders, warranty, returns, and notifications stay in one place.'],
+          ].map(([number, title, description], index) => <FadeInView key={number} delay={index * 0.08}><div className="h-full rounded-3xl border border-stone-200 bg-white p-6 shadow-sm"><div className="font-mono text-xs text-amber-700">[{number}]</div><h3 className="mt-8 text-lg font-bold text-stone-950">{title}</h3><p className="mt-2 text-sm leading-6 text-stone-600">{description}</p></div></FadeInView>)}
         </div>
       </section>
     </div>
