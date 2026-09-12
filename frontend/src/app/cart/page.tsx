@@ -14,7 +14,7 @@ export default function CartPage() {
   const { accessToken } = useAuthStore();
   const queryClient = useQueryClient();
 
-  const { data: cart, isPending } = useQuery({
+  const { data: cart, isPending, isError, refetch } = useQuery({
     queryKey: queryKeys.cart.mine(),
     queryFn: () => getCart(),
     enabled: accessToken !== null,
@@ -57,8 +57,16 @@ export default function CartPage() {
 
         {isPending && <div className="h-28 rounded-2xl bg-zinc-100 animate-pulse" />}
 
-        {!isPending && (
+        {!isPending && isError && (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-800">
+            <p>{t('common_error_generic')}</p>
+            <button onClick={() => void refetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button>
+          </div>
+        )}
+
+        {!isPending && !isError && (
           <section className="space-y-5">
+            {(removeMutation.isError || clearMutation.isError) && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-800">{t('common_error_generic')}</div>}
             {items.length === 0 ? (
               <div className="p-10 rounded-2xl border border-zinc-200 bg-white text-center">
                 <p className="text-sm text-zinc-500">{t('cart_empty')}</p>
@@ -68,7 +76,7 @@ export default function CartPage() {
               <>
                 <div className="grid gap-4">
                   {items.map((item) => (
-                    <div key={item.cartItemId} className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex items-center justify-between gap-4">
+                    <div key={item.cartItemId} className="bg-white border border-zinc-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="min-w-0">
                         <Link href={`/catalog/${item.listingId}`} className="font-bold hover:text-sky-700 transition-colors truncate block">
                           {item.listingTitle}
@@ -77,7 +85,7 @@ export default function CartPage() {
                           Rp {item.price.toLocaleString('id-ID')} × {item.quantity} — {item.listingStatus}
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 shrink-0">
+                      <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:justify-end">
                         <span className="font-mono text-sm font-bold">
                           Rp {(item.price * item.quantity).toLocaleString('id-ID')}
                         </span>
@@ -102,12 +110,12 @@ export default function CartPage() {
                   ))}
                 </div>
 
-                <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-xs font-mono text-zinc-500">
+<div className="bg-white border border-zinc-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                   <div className="flex items-start gap-3 text-xs font-mono text-zinc-500">
                     <Lock className="h-4 w-4 text-sky-600" />
                     {t('cart_check_contract')}
                   </div>
-                  <div className="flex items-center gap-6">
+                  <div className="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-end">
                     <div className="text-right">
                       <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">{t('cart_subtotal')}</div>
                       <div className="font-mono text-lg font-bold">Rp {subtotal.toLocaleString('id-ID')}</div>
