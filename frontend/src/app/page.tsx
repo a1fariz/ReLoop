@@ -76,53 +76,28 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#fafaf9] text-stone-950 ambient-light-mesh">
 
       {/* Hero Section with Staggered Reveal */}
-      <section className="container mx-auto px-6 max-w-7xl pt-20 sm:pt-28 pb-16 text-center">
-        <div className="space-y-6 max-w-4xl mx-auto">
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-16 sm:px-8 sm:pt-24 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:pb-24">
+        <div className="max-w-2xl text-center lg:text-left">
           <FadeInView>
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-800">
-              <span className="h-2 w-2 rounded-full bg-amber-600 animate-pulse" aria-hidden="true" />
-              {t('home_badge')}
-            </div>
-          </FadeInView>
-
-          <FadeInView delay={0.1}>
-            <h1 className="text-5xl sm:text-7xl font-semibold tracking-[-0.055em] text-stone-950 leading-[1.02]">
+            <h1 className="text-5xl font-semibold tracking-[-0.06em] text-stone-950 leading-[0.98] sm:text-7xl lg:text-[5.5rem]">
               {t('home_title_1')} <br />
-              <span className="bg-gradient-to-r from-stone-500 via-amber-700 to-stone-500 bg-clip-text text-transparent">{t('home_title_2')}</span>
+              <span className="text-stone-500">{t('home_title_2')}</span>
             </h1>
           </FadeInView>
-
-          <FadeInView delay={0.2}>
-            <p className="text-base sm:text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed">
-              {t('home_hero_desc')}
-            </p>
+          <FadeInView delay={0.15}>
+            <p className="mx-auto mt-7 max-w-xl text-base leading-7 text-stone-600 sm:text-lg lg:mx-0">{t('home_hero_desc')}</p>
           </FadeInView>
-
-          <FadeInView delay={0.3}>
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/catalog"
-                className="btn-primary-dark px-8 py-3.5 text-xs font-semibold shadow-md"
-              >
-                {t('home_browse')}
-              </Link>
-              <Link
-                href="/trade-in"
-                className="min-h-11 rounded-full border border-stone-300 bg-white px-8 py-3.5 text-xs font-semibold text-stone-800 shadow-sm transition-all hover:-translate-y-0.5 hover:border-stone-400 hover:bg-stone-50"
-              >
-                {t('home_valuation')}
-              </Link>
+          <FadeInView delay={0.25}>
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+              <Link href="/catalog" className="btn-primary-dark w-full px-8 py-3.5 text-xs sm:w-auto">{t('home_browse')}</Link>
+              <Link href="/trade-in" className="min-h-11 w-full rounded-full border border-stone-300 bg-white px-8 py-3.5 text-xs font-semibold text-stone-800 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-stone-50 sm:w-auto">{t('home_valuation')}</Link>
             </div>
           </FadeInView>
         </div>
-      </section>
-
-      {/* Hardware Showcase */}
-      <FadeInView>
-        <section className="container mx-auto px-6 max-w-7xl pb-20">
+        <FadeInView delay={0.15} className="min-w-0">
           <RotatingHardwareShowcase />
-        </section>
-      </FadeInView>
+        </FadeInView>
+      </section>
 
       {/* Live Telemetry */}
       <FadeInView>
@@ -136,7 +111,6 @@ export default function HomePage() {
         <FadeInView>
           <div className="flex items-end justify-between gap-4 mb-10 pb-5 border-b border-stone-200">
             <div>
-              <div className="text-[11px] font-mono uppercase tracking-[0.18em] text-amber-700">{t('home_badge')}</div>
               <h2 className="text-3xl font-semibold tracking-tight text-stone-950 mt-2">{t('home_showcase')}</h2>
             </div>
             <Link href="/catalog" className="editorial-link text-sky-800 font-semibold">
