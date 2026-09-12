@@ -25,7 +25,10 @@ const dict = {
   nav_sign_out: { id: 'Keluar', en: 'Sign Out' },
   nav_my_orders: { id: 'Pesanan Saya', en: 'My Orders' },
   nav_bureau: { id: 'ReLoop Bureau', en: 'ReLoop Bureau' },
-  nav_search_placeholder: { id: 'Listing tersertifikasi terbaru (pencarian teks menyusul)…', en: 'Latest certified listings (text search coming soon)…' },
+  nav_search_placeholder: { id: 'Cari listing tersertifikasi…', en: 'Search certified listings…' },
+  nav_open_menu: { id: 'Buka menu navigasi', en: 'Open navigation menu' },
+  nav_close_menu: { id: 'Tutup menu navigasi', en: 'Close navigation menu' },
+  nav_mobile_menu: { id: 'Menu navigasi mobile', en: 'Mobile navigation menu' },
   nav_no_listings: { id: 'Belum ada listing aktif.', en: 'No active listings yet.' },
 
   // Footer

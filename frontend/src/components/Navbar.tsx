@@ -26,6 +26,7 @@ function parseImages(images: string | null): string[] {
 
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -56,12 +57,12 @@ export function Navbar() {
 
   const navLinks = [
     { href: '/catalog', label: t('nav_inventory') },
+    { href: '/trade-in', label: t('nav_valuation') },
     { href: '/cart', label: t('nav_cart'), auth: true },
     { href: '/orders', label: t('nav_orders'), auth: true },
+    { href: '/profile', label: t('nav_profile'), auth: true },
     { href: '/returns', label: t('nav_returns'), auth: true },
     { href: '/notifications', label: t('nav_notifications'), auth: true },
-    { href: '/profile', label: t('nav_profile'), auth: true },
-    { href: '/trade-in', label: t('nav_valuation') },
     { href: '/seller', label: t('nav_seller'), roles: ['SELLER', 'ADMIN'] },
     { href: '/admin', label: t('nav_admin'), roles: ['ADMIN'] },
     { href: '/inspections', label: t('nav_inspections'), roles: ['TECHNICIAN', 'ADMIN'] },
@@ -103,7 +104,7 @@ export function Navbar() {
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-7 text-xs font-semibold tracking-wide text-zinc-600">
-              {navLinks.map((link) => (
+              {navLinks.slice(0, 5).map((link) => (
                 <Link key={link.href} href={link.href} className="hover:text-zinc-900 transition-colors">
                   {link.label}
                 </Link>
@@ -159,8 +160,12 @@ export function Navbar() {
 
             {/* Mobile Hamburger */}
             <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl hover:bg-zinc-100 transition-colors"
+              className="md:hidden min-h-11 min-w-11 rounded-xl p-2 hover:bg-zinc-100 transition-colors"
+              aria-label={isMobileMenuOpen ? t('nav_close_menu') : t('nav_open_menu')}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation"
             >
               {isMobileMenuOpen ? <X className="h-5 w-5 text-zinc-900" /> : <Menu className="h-5 w-5 text-zinc-900" />}
             </button>
@@ -180,6 +185,10 @@ export function Navbar() {
           >
             <div className="absolute inset-0 bg-zinc-900/30 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
             <motion.div
+              id="mobile-navigation"
+              role="dialog"
+              aria-modal="true"
+              aria-label={t('nav_mobile_menu')}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -193,7 +202,7 @@ export function Navbar() {
                       <RefreshCw className="h-4 w-4 text-white stroke-[2.5]" />
                     </div>
                     <span className="text-sm">ReLoop Bureau</span>                  </div>
-                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-xl hover:bg-zinc-100">
+                   <button type="button" onClick={() => setIsMobileMenuOpen(false)} className="min-h-11 min-w-11 rounded-xl p-2 hover:bg-zinc-100" aria-label={t('nav_close_menu')}>
                     <X className="h-5 w-5 text-zinc-900" />
                   </button>
                 </div>
@@ -269,12 +278,14 @@ export function Navbar() {
               <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
                 <div className="flex items-center gap-3 text-zinc-900 flex-1">
                   <Search className="h-4 w-4 text-sky-600" />
-                  <input
-                    type="text"
-                    placeholder={t('nav_search_placeholder')}
-                    readOnly
-                    className="w-full bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
-                  />
+                   <input
+                     type="search"
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     placeholder={t('nav_search_placeholder')}
+                     aria-label={t('nav_search')}
+                     className="w-full bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+                   />
                 </div>
                 <button
                   onClick={() => setIsSearchOpen(false)}
@@ -286,7 +297,7 @@ export function Navbar() {
 
               <div className="space-y-2 pt-1 text-xs">
                 <div className="text-[11px] font-mono uppercase text-zinc-600 font-semibold tracking-wider">{t('nav_latest')}</div>
-                {(latest?.items ?? []).map((listing: ListingDto) => (
+                {(latest?.items ?? []).filter((listing: ListingDto) => !searchTerm.trim() || listing.title.toLowerCase().includes(searchTerm.toLowerCase())).map((listing: ListingDto) => (
                   <Link key={listing.id} href={`/catalog/${listing.id}`} onClick={() => setIsSearchOpen(false)}
                     className="flex items-center justify-between p-3.5 rounded-2xl bg-zinc-50 hover:bg-zinc-100 transition-colors border border-zinc-200/60">
                     <div>
