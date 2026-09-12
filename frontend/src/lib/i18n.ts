@@ -24,7 +24,7 @@ const dict = {
   nav_sign_in: { id: 'Masuk', en: 'Sign In' },
   nav_sign_out: { id: 'Keluar', en: 'Sign Out' },
   nav_my_orders: { id: 'Pesanan Saya', en: 'My Orders' },
-  nav_bureau: { id: 'ReLoop Bureau', en: 'ReLoop Bureau' },
+  nav_bureau: { id: 'ReLoop Certified', en: 'ReLoop Certified' },
   nav_search_placeholder: { id: 'Cari listing tersertifikasi…', en: 'Search certified listings…' },
   nav_open_menu: { id: 'Buka menu navigasi', en: 'Open navigation menu' },
   nav_close_menu: { id: 'Tutup menu navigasi', en: 'Close navigation menu' },
@@ -40,7 +40,7 @@ const dict = {
     en: 'Serialized circular electronics bureau. Backed by 50-point diagnostic rigor, 15-minute PostgreSQL row-locks, and balanced double-entry escrow settlement.',
   },
   footer_rights: { id: '© 2026 ReLoop Platform Inc. Semua hak dilindungi.', en: '© 2026 ReLoop Platform Inc. All rights reserved.' },
-  footer_ops: { id: 'Standar Biro Operasional • Sesuai ISO', en: 'Operational Bureau Standard • ISO-Compliant' },
+  footer_ops: { id: 'Proses operasional transparan', en: 'Transparent operating process' },
   footer_catalog: { id: 'Ponsel & Laptop', en: 'Phones & Laptops' },
   footer_grading: { id: 'Grading 50 Titik', en: '50-Point Grading' },
   footer_protection: { id: 'Jaminan Perlindungan', en: 'Protection Guarantees' },
@@ -79,7 +79,7 @@ const dict = {
   catalog_min_price: { id: 'Min Rp', en: 'Min Rp' },
   catalog_max_price: { id: 'Maks Rp', en: 'Max Rp' },
   catalog_no_match: { id: 'Tidak ada listing yang cocok dengan filter ini.', en: 'No listings match these filters.' },
-  catalog_certified_price: { id: 'Harga Tersertifikasi', en: 'Certified Price' },
+  catalog_certified_price: { id: 'Harga penjual', en: 'Seller price' },
   catalog_inspect: { id: 'Inspeksi & Reservasi Lease', en: 'Inspect & Reserve Lease' },
   catalog_default_desc: {
     id: 'Hardware pra-own tersertifikasi, terserialisasi dan di-grade oleh biro ReLoop.',
@@ -333,12 +333,11 @@ const dict = {
   war_dispute_filed: { id: 'Sengketa terdaftar.', en: 'Dispute registered.' },
 
   // Home
-  home_badge: { id: 'Ekonomi Sirkular Tersertifikasi', en: 'Certified Circular Economy' },
   home_title_1: { id: 'Hardware Bekas dengan', en: 'Pre-owned Hardware with' },
-  home_title_2: { id: 'Sertifikasi Biro.', en: 'Bureau Certification.' },
+  home_title_2: { id: 'Perangkat Teruji.', en: 'Verified Devices.' },
   home_hero_desc: {
-    id: 'Setiap unit di-grade 50 titik, terkunci 15 menit saat checkout, dan disettle via ledger escrow double-entry. Tidak ada yang tersembunyi.',
-    en: 'Every unit is 50-point graded, row-locked for 15 minutes at checkout, and settled via a double-entry escrow ledger. Nothing is hidden.',
+    id: 'Lihat kondisi perangkat, pahami harganya, lalu pesan dengan status dan proses yang jelas.',
+    en: 'See the device condition, understand the price, then order with clear status and process.',
   },
   home_browse: { id: 'Lihat Inventaris', en: 'Browse Inventory' },
   home_valuation: { id: 'Cek Valuasi Unit', en: 'Value Your Device' },
@@ -438,8 +437,8 @@ const dict = {
   // Payments
   pay_title: { id: 'Pembayaran', en: 'Payments' },
   pay_desc: {
-    id: 'Riwayat percobaan pembayaran melalui mock gateway — setiap percobaan idempotent dan tercatat penuh.',
-    en: 'Payment attempt history via the mock gateway — every attempt is idempotent and fully recorded.',
+    id: 'Mode demo: pembayaran belum memproses dana nyata. Setiap percobaan tetap dicatat dan idempotent.',
+    en: 'Demo mode: no real funds are processed. Every attempt is still recorded and idempotent.',
   },
   pay_empty: { id: 'Belum ada percobaan pembayaran.', en: 'No payment attempts yet.' },
   pay_attempt: { id: 'Percobaan', en: 'Attempt' },
