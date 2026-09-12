@@ -48,7 +48,12 @@ export default function ReturnsPage() {
           <h3 className="text-lg font-bold flex items-center gap-2"><Undo2 className="h-5 w-5 text-sky-600" /> {t('ret_my')}</h3>
           {isPending && <div className="h-28 rounded-2xl bg-zinc-100 animate-pulse" />}
           {!isPending && (
-            <div className="overflow-x-auto bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm">
+            <>
+            <div className="space-y-3 sm:hidden">
+              {returns.map((r) => <article key={r.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] text-zinc-500">{r.id.slice(0, 8)} · {r.fulfillmentOrderId.slice(0, 8)}</p><h4 className="mt-1 font-bold">{r.reason}</h4></div><span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 font-mono text-[10px] font-bold text-amber-700">{r.status}</span></div><p className="mt-3 line-clamp-2 text-xs text-zinc-500">{r.description}</p><div className="mt-4 flex justify-between border-t border-zinc-100 pt-3 text-xs"><span className="text-zinc-500">{t('ret_refund')}</span><strong className="font-mono">{r.refundAmount > 0 ? `Rp ${r.refundAmount.toLocaleString('id-ID')}` : '—'}</strong></div></article>)}
+              {returns.length === 0 && <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500">{t('ret_no_returns')}</div>}
+            </div>
+            <div className="hidden overflow-x-auto rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:block">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-zinc-200 text-[10px] text-zinc-500 uppercase tracking-wider font-mono font-semibold">
@@ -83,6 +88,7 @@ export default function ReturnsPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
 
           {returnPage && returnPage.total > returnPage.size && (
