@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowRight } from 'lucide-react';
 import { RotatingHardwareShowcase } from '@/components/RotatingHardwareShowcase';
 import { TelemetryStreamHUD } from '@/components/TelemetryStreamHUD';
-import { searchListings } from '@/lib/api';
+import { apiErrorMessage, searchListings } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import type { ListingDto } from '@/types/api';
@@ -66,7 +66,7 @@ export default function HomePage() {
   const stat4 = useCounter(0, 800);
 
   // Real live listings — replaces the hardcoded showcase
-  const { data } = useQuery({
+  const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: queryKeys.listings.search({ page: 0, size: 6, sort: 'newest' }),
     queryFn: () => searchListings({ page: 0, size: 6, sort: 'newest' }),
   });
@@ -145,7 +145,11 @@ export default function HomePage() {
           </div>
         </FadeInView>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {isPending && <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 3 }).map((_, index) => <div key={index} className="luxury-card animate-pulse rounded-3xl p-6"><div className="aspect-[4/3] rounded-2xl bg-stone-200" /><div className="mt-6 h-3 w-24 rounded bg-stone-200" /><div className="mt-3 h-6 w-3/4 rounded bg-stone-200" /><div className="mt-6 h-10 rounded bg-stone-200" /></div>)}</div>}
+
+        {isError && <div role="alert" className="rounded-3xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-800"><p>{apiErrorMessage(error)}</p><button onClick={() => void refetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button></div>}
+
+        {!isPending && !isError && <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {showcaseItems.map((item, index) => {
             const image = parseImages(item.images)[0];
             return (
@@ -196,7 +200,7 @@ export default function HomePage() {
               </FadeInView>
             );
           })}
-        </div>
+        </div>}
 
         {data && showcaseItems.length === 0 && (
           <div className="p-12 rounded-3xl border border-black/[0.06] bg-[#f5f5f7] text-center text-sm text-[#86868b]">
