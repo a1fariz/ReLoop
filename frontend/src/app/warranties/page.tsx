@@ -123,7 +123,7 @@ function DisputesSection({ disputesPending, disputes }: { disputesPending: boole
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-zinc-200 text-[10px] text-zinc-500 uppercase tracking-wider font-mono font-semibold">
-              <th className="pb-4">ID</th><th className="pb-4">{t('war_fulfillment_id')}</th><th className="pb-4">{t('war_reason')}</th><th className="pb-4">{t('common_status')}</th><th className="pb-4 text-right">{t('common_page')}</th>
+              <th className="pb-4">ID</th><th className="pb-4">{t('war_fulfillment_id')}</th><th className="pb-4">{t('war_reason')}</th><th className="pb-4">{t('common_status')}</th><th className="pb-4 text-right">{t('common_date')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">

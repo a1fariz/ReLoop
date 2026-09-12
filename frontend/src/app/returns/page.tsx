@@ -52,7 +52,7 @@ export default function ReturnsPage() {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-zinc-200 text-[10px] text-zinc-500 uppercase tracking-wider font-mono font-semibold">
-                    <th className="pb-4">ID</th><th className="pb-4">{t('war_fulfillment_id')}</th><th className="pb-4">{t('ret_reason')}</th><th className="pb-4">{t('common_status')}</th><th className="pb-4 text-right">{t('ret_refund')}</th><th className="pb-4 text-right">{t('common_page')}</th>
+                    <th className="pb-4">ID</th><th className="pb-4">{t('war_fulfillment_id')}</th><th className="pb-4">{t('ret_reason')}</th><th className="pb-4">{t('common_status')}</th><th className="pb-4 text-right">{t('ret_refund')}</th><th className="pb-4 text-right">{t('common_date')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
@@ -60,7 +60,7 @@ export default function ReturnsPage() {
                     <tr key={r.id} className="hover:bg-zinc-50 transition-colors">
                       <td className="py-4 font-mono text-zinc-500">{r.id.slice(0, 8)}</td>
                       <td className="py-4 font-mono">{r.fulfillmentOrderId.slice(0, 8)}</td>
-                      <td className="py-4 max-w-[280px]]">
+                      <td className="py-4 max-w-[280px]">
                         <span className="font-bold">{r.reason}</span>
                         <div className="text-[10px] text-zinc-400 line-clamp-1">{r.description}</div>
                       </td>

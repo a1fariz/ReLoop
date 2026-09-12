@@ -53,6 +53,7 @@ const dict = {
   common_prev: { id: '← Sebelumnya', en: '← Prev' },
   common_next: { id: 'Berikutnya →', en: 'Next →' },
   common_page: { id: 'Halaman', en: 'Page' },
+  common_date: { id: 'Tanggal', en: 'Date' },
   common_total: { id: 'total', en: 'total' },
   common_reset: { id: 'Reset', en: 'Reset' },
   common_clear: { id: 'Hapus', en: 'Clear' },
