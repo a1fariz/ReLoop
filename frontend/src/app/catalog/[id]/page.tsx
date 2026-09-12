@@ -5,9 +5,6 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowUpRight, Lock, ShieldCheck, ShoppingBag, Check } from 'lucide-react';
-import { HardwareExplodedView } from '@/components/HardwareExplodedView';
-import { GradeComparisonSlider } from '@/components/GradeComparisonSlider';
-import { LedgerTAccountPreview } from '@/components/LedgerTAccountPreview';
 import { addCartItem, apiErrorMessage, getListing } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
@@ -42,7 +39,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
     onError: (err) => setCartError(apiErrorMessage(err)),
   });
 
-  const [activeDiagnosticTab, setActiveDiagnosticTab] = useState<'all' | 'display' | 'chipset' | 'battery'>('all');
+
 
   if (isPending) {
     return (
@@ -95,20 +92,14 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
               </div>
             </div>
 
-            {/* Hardware X-Ray View (demo — imagery not provided by listing API) */}
-            <div className="space-y-3">
-              <HardwareExplodedView onSelectModule={(mod) => {
-                if (mod === 'chassis') setActiveDiagnosticTab('all');
-                else setActiveDiagnosticTab(mod as any);
-              }} />
-              <p className="text-[11px] font-mono text-zinc-400 text-center">{t('detail_demo_visual')}</p>
-            </div>
-
-            {/* Visual Grade Comparison (demo) */}
-            <div className="space-y-3">
-              <GradeComparisonSlider />
-              <p className="text-[11px] font-mono text-zinc-400 text-center">{t('detail_demo_visual')}</p>
-            </div>
+            <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+              <p className="text-[11px] font-mono uppercase tracking-[0.16em] text-amber-700">{t('detail_evidence_label')}</p>
+              <h2 className="mt-2 text-xl font-bold text-stone-950">{t('detail_evidence_title')}</h2>
+              <p className="mt-2 text-sm leading-6 text-stone-600">{t('detail_evidence_desc')}</p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {[t('detail_evidence_grade'), t('detail_evidence_listing'), t('detail_evidence_reservation')].map((item) => <div key={item} className="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-xs font-semibold text-stone-700">{item}</div>)}
+              </div>
+            </section>
           </div>
 
           {/* Right: Checkout & Lease Panel */}
@@ -181,8 +172,6 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
               )}
             </div>
 
-            {/* Live T-Account Preview (demo ledger, amount is real) */}
-            <LedgerTAccountPreview amount={listing.askingPrice} sellerName={`${t('detail_seller')} #${listing.sellerId}`} />
           </div>
         </div>
       </div>
