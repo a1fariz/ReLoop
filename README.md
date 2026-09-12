@@ -1,6 +1,6 @@
 # ReLoop Circular Commerce Platform ♻️
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-reloop.alfarizi.my.id-00C853?style=for-the-badge&logo=vercel)](https://reloop.alfarizi.my.id)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-reloop.biz.id-00C853?style=for-the-badge&logo=vercel)](https://reloop.biz.id)
 [![CI](https://github.com/a1fariz/ReLoop/actions/workflows/ci.yml/badge.svg)](https://github.com/a1fariz/ReLoop/actions/workflows/ci.yml)
 [![Quarkus 3.15](https://img.shields.io/badge/Quarkus-3.15%20LTS-4695EB.svg)](https://quarkus.io/)
 [![Java 17](https://img.shields.io/badge/Java-17%20LTS-orange.svg)](https://www.oracle.com/java/)
@@ -9,7 +9,7 @@
 [![Redis 7](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Live deployment:** frontend on [reloop.alfarizi.my.id](https://reloop.alfarizi.my.id) (Vercel) · backend on Render (Singapore) · PostgreSQL on Neon · Redis on Upstash. Flyway V1–V19 auto-applies on boot, including demo seed data.
+> **Live deployment:** frontend on [reloop.biz.id](https://reloop.biz.id) (Vercel) · backend on Render (Singapore) · PostgreSQL on Neon · Redis on Upstash. Flyway V1–V19 auto-applies on boot, including demo seed data.
 >
 > **Demo accounts** (password `SecurePass123!`): `customer@reloop.com` · `seller@reloop.com` · `tech@reloop.com` · `admin@reloop.com`
 
@@ -182,7 +182,7 @@ Frontend runs at `http://localhost:3000`.
 
 | Layer | Provider | URL |
 |---|---|---|
-| Frontend | Vercel | https://reloop.alfarizi.my.id |
+| Frontend | Vercel | https://reloop.biz.id |
 | Backend (Quarkus JVM) | Render (Singapore, free) | https://reloop-backend-b5qx.onrender.com |
 | PostgreSQL 18 | Neon (Singapore) | Flyway V1–V19 auto-migrated on boot |
 | Redis (TLS) | Upstash (Singapore) | Catalog cache + login rate limiting |
