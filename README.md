@@ -1,11 +1,17 @@
 # ReLoop Circular Commerce Platform ♻️
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-reloop.alfarizi.my.id-00C853?style=for-the-badge&logo=vercel)](https://reloop.alfarizi.my.id)
+[![CI](https://github.com/a1fariz/ReLoop/actions/workflows/ci.yml/badge.svg)](https://github.com/a1fariz/ReLoop/actions/workflows/ci.yml)
+[![Quarkus 3.15](https://img.shields.io/badge/Quarkus-3.15%20LTS-4695EB.svg)](https://quarkus.io/)
 [![Java 17](https://img.shields.io/badge/Java-17%20LTS-orange.svg)](https://www.oracle.com/java/)
-[![Spring Boot 3.3.4](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Spring Modulith](https://img.shields.io/badge/Spring%20Modulith-1.2.4-blue.svg)](https://spring.io/projects/spring-modulith)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14.2.15-black.svg)](https://nextjs.org/)
 [![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://www.postgresql.org/)
 [![Redis 7](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+> **Live deployment:** frontend on [reloop.alfarizi.my.id](https://reloop.alfarizi.my.id) (Vercel) · backend on Render (Singapore) · PostgreSQL on Neon · Redis on Upstash. Flyway V1–V19 auto-applies on boot, including demo seed data.
+>
+> **Demo accounts** (password `SecurePass123!`): `customer@reloop.com` · `seller@reloop.com` · `tech@reloop.com` · `admin@reloop.com`
 
 ReLoop is an enterprise-grade circular commerce platform built for authenticated serialized electronics, 50-point technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
 
@@ -13,7 +19,7 @@ ReLoop is an enterprise-grade circular commerce platform built for authenticated
 
 ## 🏛️ Architecture Highlights
 
-- **Modular Monolith Architecture:** Built with **Java 17**, **Spring Boot 3.3.4**, and **Spring Modulith** with automated architectural boundary verification (`ModulithArchitectureTest`).
+- **Modular Monolith Architecture:** Primary backend on **Quarkus 3.15** (JVM) with 25 bounded-context modules, ArchUnit-verified boundaries (`ModuleBoundaryArchitectureTest`), transactional outbox, and immutable audit trail. A **Spring Boot 3.3 / Spring Modulith** twin is kept as a legacy reference (migration story).
 - **Double-Entry Financial Ledger:** Every monetary movement (Escrow Hold, Platform Commission, Seller Payout, Partial Dispute Refund) is recorded in balanced Debit/Credit (`DR`/`CR`) journal lines with zero financial discrepancies ($\sum \text{Debits} = \sum \text{Credits}$).
 - **Anti-Hoarding Checkout Lease:** Two-stage reservation system where adding to cart does not block inventory, but initiating checkout acquires a pessimistic row lock (`SELECT ... FOR UPDATE`) with a 15-minute lease guarded by a PostgreSQL **Partial Unique Index**.
 - **Algorithmic Math Engines:**
@@ -26,17 +32,21 @@ ReLoop is an enterprise-grade circular commerce platform built for authenticated
 
 ## 🛠️ Technology Stack
 
-### Backend
-- **Java 17 LTS**
+### Backend (primary — Quarkus)
+- **Java 17 LTS · Quarkus 3.15** (RESTEasy Reactive, Hibernate ORM Panache, Flyway)
+- **PostgreSQL 16** — Flyway Migrations V1 to V19 (schema + demo seed)
+- **Redis 7** — catalog cache, login rate limiting (Upstash TLS in cloud)
+- **JWT (JJWT) + BCrypt cost-12** — refresh token rotation family
+- **Transactional Outbox** — LOG / Kafka dispatch, email bridge
+- **JUnit 5, AssertJ, Mockito, ArchUnit, Testcontainers** — 115 unit tests + full-stack IT
+
+### Backend (legacy reference — Spring)
 - **Spring Boot 3.3.4** (Spring Security, Spring Data JPA, Spring Modulith)
-- **PostgreSQL 16** (Flyway Migrations V1 to V8)
-- **Redis 7** (Redisson Distributed Locks)
-- **JUnit 5 & AssertJ**
 
 ### Frontend
 - **Next.js 14 (App Router)** & **TypeScript**
 - **Tailwind CSS** (Design-MD & Stripe/Linear Tokens)
-- **TanStack Query v5**
+- **TanStack Query v5** + Zustand auth store with single-flight refresh rotation
 - **Lucide React Icons**
 
 ---
@@ -69,7 +79,7 @@ reloop/
 │   │   ├── notifications/    # In-App Notification Center + Email Outbox Bridge
 │   │   ├── outbox/           # Transactional Outbox → Kafka / Email Dispatch
 │   │   └── audit/            # Immutable Append-Only Audit Trail
-│   └── src/main/resources/db/migration/ # Flyway SQL Migrations (V1 to V17)
+│   └── src/main/resources/db/migration/ # Flyway SQL Migrations (V1 to V19)
 │
 ├── backend/                  # Spring Boot 3.3.4 Modular Monolith (legacy reference)
 │   └── ...                   # Same module layout; kept until Quarkus parity is signed off
@@ -118,7 +128,7 @@ Services started:
 cd backend-quarkus
 mvn quarkus:dev
 ```
-Backend starts on `http://localhost:8080` and applies Flyway migrations `V1` to `V8` automatically.
+Backend starts on `http://localhost:8080` and applies Flyway migrations `V1` to `V19` automatically.
 Extras over the legacy stack: Swagger UI at [`/q/swagger-ui`](http://localhost:8080/q/swagger-ui),
 health at `/q/health`, Prometheus metrics at `/q/metrics`, Redis-backed catalog cache &
 login rate limiting, and real Kafka/email dispatch from the transactional outbox
@@ -165,3 +175,35 @@ Frontend runs at `http://localhost:3000`.
 | **Redis 7 (Docker)** | `6379` | `localhost:6379` | Cache & Redisson Locks |
 | **Mailpit Web UI (Docker)** | `8025` | http://localhost:8025 | Dashboard Email Testing |
 | **Mailpit SMTP (Docker)** | `1025` | `localhost:1025` | Server Pengiriman Email Lokal |
+
+---
+
+## ☁️ Live Deployment
+
+| Layer | Provider | URL |
+|---|---|---|
+| Frontend | Vercel | https://reloop.alfarizi.my.id |
+| Backend (Quarkus JVM) | Render (Singapore, free) | https://reloop-backend-b5qx.onrender.com |
+| PostgreSQL 18 | Neon (Singapore) | Flyway V1–V19 auto-migrated on boot |
+| Redis (TLS) | Upstash (Singapore) | Catalog cache + login rate limiting |
+
+Deploy configuration: [`render.yaml`](render.yaml) (backend service definition). The container is built from [`backend-quarkus/Dockerfile`](backend-quarkus/Dockerfile) directly from this repository.
+
+**Demo accounts** (password `SecurePass123!`):
+
+| Role | Email | What to try |
+|---|---|---|
+| Customer | `customer@reloop.com` | Catalog → checkout 15-min lease → orders → returns → notifications |
+| Seller | `seller@reloop.com` | Seller hub: fulfillments, ship with tracking, ledger views |
+| Technician | `tech@reloop.com` | 50-point grading form, repair bench with QC + re-grading |
+| Admin | `admin@reloop.com` | Ops console: fulfillments pipeline, dispute arbitration, escrow stats, returns desk |
+
+> Note: free-tier services sleep when idle — the first request after inactivity takes ~50 seconds to wake the backend.
+
+## 🔒 Security Notes
+
+- JWT HS256 with env-injected secret (`JWT_SECRET`), 15-min access tokens, 7-day rotating refresh families
+- IDOR guards: every resource access verifies ownership server-side (buyer/seller/technician/admin)
+- PostgreSQL authority: `audit_logs` & `lifecycle_events` append-only; financial movements only via double-entry journals
+- Rate limiting: Redis-backed login throttling + Nginx gateway rate zones
+- No client-trusted money: all totals recomputed server-side from DB records
