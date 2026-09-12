@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Search, ArrowRight } from 'lucide-react';
-import { searchListings } from '@/lib/api';
+import { apiErrorMessage, searchListings } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import type { ListingDto, ListingSearchParams } from '@/types/api';
@@ -25,7 +25,7 @@ export default function CatalogPage() {
   const [minPriceInput, setMinPriceInput] = useState('');
   const [maxPriceInput, setMaxPriceInput] = useState('');
 
-  const { data, isPending, isError, error } = useQuery({
+  const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: queryKeys.listings.search(params),
     queryFn: () => searchListings(params),
     placeholderData: (prev) => prev,
@@ -61,15 +61,19 @@ export default function CatalogPage() {
           </div>
 
           {/* Price Filter */}
-          <div className="flex items-center gap-2 text-xs font-mono">
-            <input
-              type="number" min="0" placeholder={t('catalog_min_price')} value={minPriceInput}
+          <div className="flex flex-wrap items-end gap-2 text-xs font-mono">
+             <label className="sr-only" htmlFor="catalog-min-price">{t('catalog_min_price')}</label>
+             <input
+               id="catalog-min-price"
+               type="number" min="0" placeholder={t('catalog_min_price')} value={minPriceInput}
               onChange={(e) => setMinPriceInput(e.target.value)}
               className="w-28 rounded-full border border-black/[0.1] bg-[#f5f5f7] px-4 py-2.5 text-xs focus:outline-none focus:border-[#0071e3] focus:bg-white transition-all"
             />
             <span className="text-[#86868b]">—</span>
-            <input
-              type="number" min="0" placeholder={t('catalog_max_price')} value={maxPriceInput}
+             <label className="sr-only" htmlFor="catalog-max-price">{t('catalog_max_price')}</label>
+             <input
+               id="catalog-max-price"
+               type="number" min="0" placeholder={t('catalog_max_price')} value={maxPriceInput}
               onChange={(e) => setMaxPriceInput(e.target.value)}
               className="w-28 rounded-full border border-black/[0.1] bg-[#f5f5f7] px-4 py-2.5 text-xs focus:outline-none focus:border-[#0071e3] focus:bg-white transition-all"
             />
@@ -96,6 +100,7 @@ export default function CatalogPage() {
               <button
                 key={g || 'ALL'}
                 onClick={() => setParams((p) => ({ ...p, page: 0, grade: g || undefined }))}
+                aria-pressed={(params.grade ?? '') === g}
                 className={`px-3 py-1.5 rounded-full font-mono font-semibold transition-all ${
                   (params.grade ?? '') === g ? 'bg-[#1d1d1f] text-white' : 'bg-white text-[#1d1d1f] hover:bg-[#eaeaea]'
                 }`}
@@ -110,8 +115,9 @@ export default function CatalogPage() {
             {([['newest', t('common_newest')], ['priceAsc', t('common_price_asc')], ['priceDesc', t('common_price_desc')]] as const).map(([value, label]) => (
               <button
                 key={value}
-                onClick={() => setParams((p) => ({ ...p, sort: value }))}
-                className={`px-3 py-1.5 rounded-full transition-all ${
+                 onClick={() => setParams((p) => ({ ...p, page: 0, sort: value }))}
+                 aria-pressed={(params.sort ?? 'newest') === value}
+                 className={`px-3 py-1.5 rounded-full transition-all ${
                   (params.sort ?? 'newest') === value ? 'bg-[#0071e3] text-white font-semibold' : 'bg-white text-[#1d1d1f] hover:bg-[#eaeaea]'
                 }`}
               >
@@ -124,8 +130,9 @@ export default function CatalogPage() {
         {/* Error State */}
         {isError && (
           <div className="p-8 rounded-3xl border border-red-200 bg-red-50 text-sm text-red-700 text-center">
-            Could not load listings: {(error as Error).message}
-          </div>
+             <p>{apiErrorMessage(error)}</p>
+             <button onClick={() => void refetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button>
+           </div>
         )}
 
         {/* Skeleton */}
