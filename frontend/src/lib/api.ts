@@ -288,7 +288,7 @@ export async function repairStartDiagnosis(id: string): Promise<RepairTicketDto>
 }
 
 export async function repairStartRepair(id: string, estimatedPartsCost?: number): Promise<RepairTicketDto> {
-  return unwrap<RepairTicketDto>(await apiClient.post(`/repairs/${id}/start-repair`, { params: { estimatedPartsCost } }));
+  return unwrap<RepairTicketDto>(await apiClient.post(`/repairs/${id}/start-repair`, null, { params: { estimatedPartsCost } }));
 }
 
 export async function repairSubmitQc(id: string, input: SubmitQcRequest): Promise<RepairTicketDto> {
