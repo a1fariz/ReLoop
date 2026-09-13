@@ -7,6 +7,7 @@ public record ListingDto(
     UUID id,
     UUID unitId,
     Long sellerId,
+    String sellerName,
     String title,
     String description,
     BigDecimal askingPrice,

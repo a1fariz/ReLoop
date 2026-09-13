@@ -13,6 +13,8 @@ import com.reloop.units.repository.ProductUnitRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -24,6 +26,9 @@ public class ListingService {
     private final ListingRepository listingRepository;
     private final ProductUnitRepository productUnitRepository;
     private final ObjectMapper objectMapper;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Inject
     public ListingService(ListingRepository listingRepository, ProductUnitRepository productUnitRepository,
@@ -206,11 +211,12 @@ public class ListingService {
         return false;
     }
 
-    public static ListingDto toDto(Listing listing) {
+    public ListingDto toDto(Listing listing) {
         return new ListingDto(
                 listing.getId(),
                 listing.getUnitId(),
                 listing.getSellerId(),
+                sellerStoreName(listing.getSellerId()),
                 listing.getTitle(),
                 listing.getDescription(),
                 listing.getAskingPrice(),
@@ -218,5 +224,20 @@ public class ListingService {
                 listing.getGradeSnapshot(),
                 listing.getImages()
         );
+    }
+
+    private String sellerStoreName(Long sellerProfileId) {
+        if (sellerProfileId == null || entityManager == null) {
+            return null;
+        }
+        try {
+            Object name = entityManager
+                    .createNativeQuery("SELECT store_name FROM sellers WHERE id = ?1")
+                    .setParameter(1, sellerProfileId)
+                    .getResultList().stream().findFirst().orElse(null);
+            return name != null ? name.toString() : null;
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 }

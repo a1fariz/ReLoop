@@ -132,7 +132,7 @@ export default function HomePage() {
                     </div>
 
                     <div className="text-[11px] font-mono text-stone-500 uppercase tracking-[0.12em] mb-1">
-                      {t('detail_seller')} #{item.sellerId} • {t('detail_unit')} {item.unitId.slice(0, 8)}
+                      {item.sellerName ?? `#${item.sellerId}`} • {t('detail_unit')} {item.unitId.slice(0, 8)}
                     </div>
                     <h3 className="text-xl font-bold text-stone-950 group-hover:text-sky-800 transition-colors duration-200 mb-2">
                       {item.title}

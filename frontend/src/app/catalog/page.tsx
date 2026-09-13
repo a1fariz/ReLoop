@@ -184,7 +184,7 @@ export default function CatalogPage() {
                       </div>
 
                       <div className="text-xs font-mono text-[#86868b] uppercase tracking-wider mb-1">
-                        {t('detail_seller')} #{item.sellerId} • {t('detail_unit')} {item.unitId.slice(0, 8)}
+                        {item.sellerName ?? `#${item.sellerId}`} • {t('detail_unit')} {item.unitId.slice(0, 8)}
                       </div>
                       <Link href={`/catalog/${item.id}`}>
                         <h3 className="text-xl font-bold text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors mb-2">

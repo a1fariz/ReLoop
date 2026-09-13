@@ -40,6 +40,7 @@ export interface ListingDto {
   id: string;
   unitId: string;
   sellerId: number;
+  sellerName: string | null;
   title: string;
   description: string | null;
   askingPrice: number;

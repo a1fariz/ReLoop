@@ -88,7 +88,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
               </div>
               <div className="p-5 flex items-center justify-between text-xs font-mono text-zinc-500 border-t border-zinc-100 mt-5">
                 <span>{t('detail_unit').toUpperCase()}: <strong className="text-zinc-900">{listing.unitId.slice(0, 13)}…</strong></span>
-                <span>{t('detail_seller')} #{listing.sellerId}</span>
+                <span>{listing.sellerName ?? `${t('detail_seller')} #${listing.sellerId}`}</span>
               </div>
             </div>
 
