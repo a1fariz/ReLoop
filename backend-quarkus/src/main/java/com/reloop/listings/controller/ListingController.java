@@ -51,6 +51,7 @@ public class ListingController {
     @GET
     @Path("/search")
     public ApiResponse<Page<ListingDto>> search(
+            @QueryParam("q") String query,
             @QueryParam("minPrice") BigDecimal minPrice,
             @QueryParam("maxPrice") BigDecimal maxPrice,
             @QueryParam("grade") String grade,
@@ -59,7 +60,7 @@ public class ListingController {
             @QueryParam("size") @DefaultValue("20") int size) {
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
         int safePage = Math.max(page, 0);
-        Page<ListingDto> result = listingService.searchListings(minPrice, maxPrice, grade, sort, safePage, safeSize);
+        Page<ListingDto> result = listingService.searchListings(query, minPrice, maxPrice, grade, sort, safePage, safeSize);
         return ApiResponse.ok(result, correlationContext.getCorrelationId());
     }
 

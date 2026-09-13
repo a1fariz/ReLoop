@@ -20,13 +20,17 @@ public class ListingRepository implements ReloopRepository<Listing, UUID> {
         return find("unitId = ?1 AND status = ?2", unitId, Listing.ListingStatus.ACTIVE).firstResultOptional();
     }
 
-    /** Marketplace search: status + optional price range and grade, with sorting. */
+    /** Marketplace search: status + optional keyword, price range and grade, with sorting. */
     public io.quarkus.hibernate.orm.panache.PanacheQuery<Listing> search(
-            Listing.ListingStatus status, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice,
+            Listing.ListingStatus status, String query, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice,
             String grade, io.quarkus.panache.common.Sort sort) {
         java.util.Map<String, Object> params = new java.util.HashMap<>();
         StringBuilder q = new StringBuilder("status = :status");
         params.put("status", status);
+        if (query != null && !query.isBlank()) {
+            q.append(" AND (lower(title) LIKE :query OR lower(description) LIKE :query)");
+            params.put("query", "%" + query.toLowerCase() + "%");
+        }
         if (minPrice != null) {
             q.append(" AND askingPrice >= :minPrice");
             params.put("minPrice", minPrice);

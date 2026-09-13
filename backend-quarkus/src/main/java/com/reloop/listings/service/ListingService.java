@@ -160,7 +160,7 @@ public class ListingService {
     /** Marketplace search with price/grade filters, sorting and pagination. */
     @Transactional(Transactional.TxType.SUPPORTS)
     public com.reloop.common.dto.Page<ListingDto> searchListings(
-            java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, String grade,
+            String query, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, String grade,
             String sort, int page, int size) {
         io.quarkus.panache.common.Sort order = switch (sort == null ? "" : sort) {
             case "priceAsc" -> io.quarkus.panache.common.Sort.by("askingPrice", io.quarkus.panache.common.Sort.Direction.Ascending);
@@ -168,7 +168,7 @@ public class ListingService {
             default -> io.quarkus.panache.common.Sort.descending("createdAt");
         };
         var query = listingRepository.search(com.reloop.listings.domain.Listing.ListingStatus.ACTIVE,
-                minPrice, maxPrice, grade, order);
+                query, minPrice, maxPrice, grade, order);
         // PanacheQuery from the ORM module
         long total = query.count();
         List<ListingDto> items = query.page(io.quarkus.panache.common.Page.of(page, size)).list()
