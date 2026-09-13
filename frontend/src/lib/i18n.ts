@@ -103,6 +103,13 @@ const dict = {
   detail_evidence_grade: { id: 'Grade listing', en: 'Listing grade' },
   detail_evidence_listing: { id: 'Harga penjual', en: 'Seller price' },
   detail_evidence_reservation: { id: 'Reservasi dikonfirmasi server', en: 'Server-confirmed reservation' },
+  detail_inspection_title: { id: 'Laporan Inspeksi Unit', en: 'Unit Inspection Report' },
+  detail_inspection_desc: { id: 'Hasil inspeksi teknis terakhir yang terekam di sistem.', en: 'Latest technical inspection result recorded in the system.' },
+  detail_inspection_date: { id: 'Tanggal Inspeksi', en: 'Inspection Date' },
+  detail_score_physical: { id: 'Skor Fisik', en: 'Physical Score' },
+  detail_score_hardware: { id: 'Skor Hardware', en: 'Hardware Score' },
+  detail_score_software: { id: 'Skor Software', en: 'Software Score' },
+  detail_repair_cost: { id: 'Estimasi Biaya Perbaikan', en: 'Estimated Repair Cost' },
   detail_demo_ledger: { id: 'Preview ledger demo, nominal riil', en: 'Demo ledger preview, amount is real' },
   detail_lease_lock: { id: 'Lease Row-Lock 15 Menit', en: '15-Minute Row-Locked Lease' },
   detail_lease_desc: {

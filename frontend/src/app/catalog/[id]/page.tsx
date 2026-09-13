@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowUpRight, Lock, ShieldCheck, ShoppingBag, Check } from 'lucide-react';
-import { addCartItem, apiErrorMessage, getListing } from '@/lib/api';
+import { addCartItem, apiErrorMessage, getLatestInspection, getListing } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import { useAuthStore } from '@/lib/auth';
@@ -37,6 +37,14 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (err) => setCartError(apiErrorMessage(err)),
+  });
+
+  const { data: inspection } = useQuery({
+    queryKey: ['inspections', 'unit', listing?.unitId],
+    queryFn: () => getLatestInspection(listing!.unitId),
+    enabled: !!listing?.unitId,
+    retry: 0,
+    staleTime: 60_000,
   });
 
 
@@ -94,11 +102,28 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
 
             <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
               <p className="text-[11px] font-mono uppercase tracking-[0.16em] text-amber-700">{t('detail_evidence_label')}</p>
-              <h2 className="mt-2 text-xl font-bold text-stone-950">{t('detail_evidence_title')}</h2>
-              <p className="mt-2 text-sm leading-6 text-stone-600">{t('detail_evidence_desc')}</p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                {[t('detail_evidence_grade'), t('detail_evidence_listing'), t('detail_evidence_reservation')].map((item) => <div key={item} className="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-xs font-semibold text-stone-700">{item}</div>)}
-              </div>
+              <h2 className="mt-2 text-xl font-bold text-stone-950">{inspection ? t('detail_inspection_title') : t('detail_evidence_title')}</h2>
+              {inspection ? (
+                <>
+                  <p className="mt-2 text-sm leading-6 text-stone-600">{t('detail_inspection_desc')}</p>
+                  <dl className="mt-5 grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4"><dt className="text-[10px] font-mono uppercase tracking-wider text-stone-500">Grade</dt><dd className="mt-1 font-mono text-lg font-bold">{inspection.finalCalculatedGrade}</dd></div>
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4"><dt className="text-[10px] font-mono uppercase tracking-wider text-stone-500">{t('detail_inspection_date')}</dt><dd className="mt-1 text-sm font-semibold">{new Date(inspection.createdAt).toLocaleDateString('id-ID')}</dd></div>
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4"><dt className="text-[10px] font-mono uppercase tracking-wider text-stone-500">{t('detail_score_physical')}</dt><dd className="mt-1 font-mono text-lg font-bold">{inspection.physicalScore}<span className="text-sm text-stone-500">/100</span></dd></div>
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4"><dt className="text-[10px] font-mono uppercase tracking-wider text-stone-500">{t('detail_score_hardware')}</dt><dd className="mt-1 font-mono text-lg font-bold">{inspection.hardwareScore}<span className="text-sm text-stone-500">/100</span></dd></div>
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4"><dt className="text-[10px] font-mono uppercase tracking-wider text-stone-500">{t('detail_score_software')}</dt><dd className="mt-1 font-mono text-lg font-bold">{inspection.softwareScore}<span className="text-sm text-stone-500">/100</span></dd></div>
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4"><dt className="text-[10px] font-mono uppercase tracking-wider text-stone-500">{t('detail_repair_cost')}</dt><dd className="mt-1 font-mono text-lg font-bold">Rp {inspection.estimatedRepairCost.toLocaleString('id-ID')}</dd></div>
+                  </dl>
+                  {inspection.technicianNotes && <p className="mt-4 rounded-xl border border-sky-100 bg-sky-50 p-3 text-xs leading-5 text-sky-950">{inspection.technicianNotes}</p>}
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm leading-6 text-stone-600">{t('detail_evidence_desc')}</p>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    {[t('detail_evidence_grade'), t('detail_evidence_listing'), t('detail_evidence_reservation')].map((item) => <div key={item} className="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-xs font-semibold text-stone-700">{item}</div>)}
+                  </div>
+                </>
+              )}
             </section>
           </div>
 
