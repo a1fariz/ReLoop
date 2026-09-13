@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Providers } from "@/components/Providers";
+import { LocaleSync } from "@/components/LocaleSync";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
     <html lang="en" className={`${jakarta.variable} ${mono.variable}`}>
       <body className="min-h-screen bg-[#ffffff] font-sans antialiased text-[#1d1d1f] flex flex-col justify-between selection:bg-black selection:text-white">
         <Providers>
+          <LocaleSync />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
