@@ -358,6 +358,7 @@ const dict = {
   home_showcase_desc: { id: 'Listing live dari marketplace — data nyata, grade nyata.', en: 'Live listings from the marketplace — real data, real grades.' },
   home_view_all: { id: 'Lihat Semua', en: 'View All' },
   home_empty: { id: 'Belum ada listing aktif di marketplace.', en: 'No active listings on the marketplace yet.' },
+  home_waking: { id: 'Menyalakan katalog, tunggu sebentar…', en: 'Starting up the catalog, please wait…' },
 
   // Reviews
   review_write: { id: 'Tulis Ulasan', en: 'Write Review' },

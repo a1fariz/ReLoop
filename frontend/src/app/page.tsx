@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { motion, useInView } from 'framer-motion';
@@ -44,6 +44,16 @@ export default function HomePage() {
     queryFn: () => searchListings({ page: 0, size: 6, sort: 'newest' }),
   });
   const showcaseItems: ListingDto[] = data?.items ?? [];
+  const [slowLoad, setSlowLoad] = useState(false);
+
+  useEffect(() => {
+    if (!isPending) {
+      setSlowLoad(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSlowLoad(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, [isPending]);
 
   return (
     <div className="min-h-screen bg-[#fafaf9] text-stone-950 ambient-light-mesh">
@@ -90,7 +100,7 @@ export default function HomePage() {
           </div>
         </FadeInView>
 
-        {isPending && <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 3 }).map((_, index) => <div key={index} className="luxury-card animate-pulse rounded-3xl p-6"><div className="aspect-[4/3] rounded-2xl bg-stone-200" /><div className="mt-6 h-3 w-24 rounded bg-stone-200" /><div className="mt-3 h-6 w-3/4 rounded bg-stone-200" /><div className="mt-6 h-10 rounded bg-stone-200" /></div>)}</div>}
+        {isPending && <div>{slowLoad && <p className="mb-4 rounded-2xl border border-sky-200 bg-sky-50 p-3 text-center text-xs font-medium text-sky-800">{t('home_waking')}</p>}<div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 3 }).map((_, index) => <div key={index} className="luxury-card animate-pulse rounded-3xl p-6"><div className="aspect-[4/3] rounded-2xl bg-stone-200" /><div className="mt-6 h-3 w-24 rounded bg-stone-200" /><div className="mt-3 h-6 w-3/4 rounded bg-stone-200" /><div className="mt-6 h-10 rounded bg-stone-200" /></div>)}</div></div>}
 
         {isError && <div role="alert" className="rounded-3xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-800"><p>{apiErrorMessage(error)}</p><button onClick={() => void refetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button></div>}
 
