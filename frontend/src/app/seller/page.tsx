@@ -158,7 +158,7 @@ export default function SellerHubPage() {
                     </div>
                     <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
                       <span className="font-mono text-sm font-bold">Rp {l.askingPrice.toLocaleString('id-ID')} · {t('common_grade')} {l.gradeSnapshot}</span>
-                      {l.status === 'ACTIVE' ? (<button onClick={() => pauseMutation.mutate(l.id)} disabled={pauseMutation.isPending} className="rounded-full border border-amber-200 px-3 py-1.5 text-[10px] font-bold text-amber-700">{t('seller_pause')}</button>) : l.status === 'PAUSED' ? (<button onClick={() => resumeMutation.mutate(l.id)} disabled={resumeMutation.isPending} className="rounded-full border border-emerald-200 px-3 py-1.5 text-[10px] font-bold text-emerald-700">{t('seller_resume')}</button>) : (<span className="text-[10px] font-mono text-zinc-400">—</span>)}
+                      {l.status === 'ACTIVE' ? (<button onClick={() => pauseMutation.mutate(l.id)} disabled={pauseMutation.isPending} aria-busy={pauseMutation.isPending} className="rounded-full border border-amber-200 px-3 py-1.5 text-[10px] font-bold text-amber-700">{t('seller_pause')}</button>) : l.status === 'PAUSED' ? (<button onClick={() => resumeMutation.mutate(l.id)} disabled={resumeMutation.isPending} aria-busy={resumeMutation.isPending} className="rounded-full border border-emerald-200 px-3 py-1.5 text-[10px] font-bold text-emerald-700">{t('seller_resume')}</button>) : (<span className="text-[10px] font-mono text-zinc-400">—</span>)}
                     </div>
                   </article>
                 ))}
@@ -187,7 +187,7 @@ export default function SellerHubPage() {
                           {l.status === 'ACTIVE' ? (
                             <button
                               onClick={() => pauseMutation.mutate(l.id)}
-                              disabled={pauseMutation.isPending}
+                              disabled={pauseMutation.isPending} aria-busy={pauseMutation.isPending}
                               className="px-3 py-1.5 rounded-full border border-amber-200 text-amber-700 text-[10px] font-bold hover:bg-amber-50 transition-colors disabled:opacity-50"
                             >
                               {t('seller_pause')}
@@ -195,7 +195,7 @@ export default function SellerHubPage() {
                           ) : l.status === 'PAUSED' ? (
                             <button
                               onClick={() => resumeMutation.mutate(l.id)}
-                              disabled={resumeMutation.isPending}
+                              disabled={resumeMutation.isPending} aria-busy={resumeMutation.isPending}
                               className="px-3 py-1.5 rounded-full border border-emerald-200 text-emerald-700 text-[10px] font-bold hover:bg-emerald-50 transition-colors disabled:opacity-50"
                             >
                               {t('seller_resume')}
@@ -425,7 +425,7 @@ function ShipModal({ fulfillment, onClose }: { fulfillment: FulfillmentOrderDto;
           <label className="block text-xs font-semibold mb-1.5">{t('seller_tracking')}</label>
           <input required value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} className={inputCls} placeholder="AWB number" />
         </div>
-        <button type="submit" disabled={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
+        <button type="submit" disabled={mutation.isPending} aria-busy={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
           {mutation.isPending ? t('seller_marking_shipped') : t('seller_confirm_ship')}
         </button>
       </form>

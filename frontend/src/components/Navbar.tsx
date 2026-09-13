@@ -189,6 +189,15 @@ export function Navbar() {
               role="dialog"
               aria-modal="true"
               aria-label={t('nav_mobile_menu')}
+              onKeyDown={(e) => {
+                if (e.key !== 'Tab') return;
+                const focusables = (e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+                if (focusables.length === 0) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+              }}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -279,6 +288,7 @@ export function Navbar() {
                 <div className="flex items-center gap-3 text-zinc-900 flex-1">
                   <Search className="h-4 w-4 text-sky-600" />
                    <input
+                     autoFocus
                      type="search"
                      value={searchTerm}
                      onChange={(e) => setSearchTerm(e.target.value)}
@@ -288,6 +298,8 @@ export function Navbar() {
                    />
                 </div>
                 <button
+                  type="button"
+                  aria-label={t('nav_close_menu')}
                   onClick={() => setIsSearchOpen(false)}
                   className="text-zinc-400 hover:text-zinc-900 p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"
                 >

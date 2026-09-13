@@ -155,6 +155,7 @@ function FulfillmentsTable() {
                       ) : next ? (
                         <button
                           onClick={() => action.mutate({ id: f.id, fn: next.fn })}
+                          aria-busy={action.isPending}
                           className="px-3 py-1.5 rounded-full bg-zinc-900 text-white text-[10px] font-bold hover:bg-zinc-700 transition-colors inline-flex items-center gap-1.5"
                         >
                           {next.icon} {next.label}
@@ -334,7 +335,7 @@ function ResolveModal({ dispute, onClose }: { dispute: DisputeResponse; onClose:
           <label className="block text-xs font-semibold mb-1.5">{t('admin_notes')}</label>
           <textarea value={resolutionNotes} onChange={(e) => setResolutionNotes(e.target.value)} rows={2} className={inputCls} placeholder="Arbitration rationale…" />
         </div>
-        <button type="submit" disabled={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
+        <button type="submit" disabled={mutation.isPending} aria-busy={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
           {mutation.isPending ? t('admin_settling') : t('admin_resolve_post')}
         </button>
       </form>

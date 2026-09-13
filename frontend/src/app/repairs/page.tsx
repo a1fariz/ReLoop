@@ -107,7 +107,7 @@ function NewTicketForm() {
         <input type="number" min="0" value={initialPartsCost} onChange={(e) => setInitialPartsCost(e.target.value)} className={inputCls} placeholder="0" />
       </div>
 
-      <button type="submit" disabled={mutation.isPending} className="btn-blue px-6 py-3 text-xs disabled:opacity-60">
+      <button type="submit" disabled={mutation.isPending} aria-busy={mutation.isPending} className="btn-blue px-6 py-3 text-xs disabled:opacity-60">
         {mutation.isPending ? t('common_loading') : t('rep_new_ticket')}
       </button>
     </form>
@@ -316,7 +316,7 @@ function StartRepairModal({ ticket, onClose }: { ticket: RepairTicketDto; onClos
         <label className="block text-xs font-semibold mb-1.5">{t('rep_est_parts_cost')}</label>
         <input type="number" min="0" value={estimatedPartsCost} onChange={(e) => setEstimatedPartsCost(e.target.value)} className={inputCls} placeholder="0" />
       </div>
-      <button type="submit" disabled={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
+      <button type="submit" disabled={mutation.isPending} aria-busy={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
         {mutation.isPending ? t('common_loading') : t('rep_start_repair')}
       </button>
     </form>
@@ -397,7 +397,7 @@ function SubmitQcModal({ ticket, onClose }: { ticket: RepairTicketDto; onClose: 
         <label className="block text-xs font-semibold mb-1.5">{t('rep_total_cost')}</label>
         <input type="number" min="0" value={totalPartsCost} onChange={(e) => setTotalPartsCost(e.target.value)} className={inputCls} placeholder="0" />
       </div>
-      <button type="submit" disabled={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
+      <button type="submit" disabled={mutation.isPending} aria-busy={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
         {mutation.isPending ? t('common_loading') : t('rep_submit_qc')}
       </button>
     </form>
@@ -468,7 +468,7 @@ function CompleteModal({ ticket, onClose }: { ticket: RepairTicketDto; onClose: 
         <label className="block text-xs font-semibold mb-1.5">{t('rep_notes')}</label>
         <textarea value={technicianNotes} onChange={(e) => setTechnicianNotes(e.target.value)} rows={3} className={inputCls} />
       </div>
-      <button type="submit" disabled={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
+      <button type="submit" disabled={mutation.isPending} aria-busy={mutation.isPending} className="w-full btn-blue py-3 text-xs disabled:opacity-60">
         {mutation.isPending ? t('common_loading') : t('rep_complete')}
       </button>
     </form>
