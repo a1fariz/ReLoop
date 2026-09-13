@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, CheckCheck } from 'lucide-react';
-import { getMyNotifications, markNotificationRead, markAllNotificationsRead } from '@/lib/api';
+import { getMyNotifications, markNotificationRead, markAllNotificationsRead, apiErrorMessage } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import { useAuthStore } from '@/lib/auth';
@@ -15,7 +15,7 @@ export default function NotificationsPage() {
   const [page, setPage] = useState(0);
   const queryClient = useQueryClient();
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: queryKeys.notifications.mine(unreadOnly, page, 20),
     queryFn: () => getMyNotifications(unreadOnly, page, 20),
     enabled: accessToken !== null,
@@ -77,9 +77,11 @@ export default function NotificationsPage() {
           </button>
         </div>
 
+        {isError && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-800"><p>{apiErrorMessage(error)}</p><button onClick={() => void refetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button></div>}
+
         {isPending && <div className="h-28 rounded-2xl bg-zinc-100 animate-pulse" />}
 
-        {!isPending && (
+        {!isPending && !isError && (
           <div className="space-y-3">
             {notifications.map((n) => (
               <button

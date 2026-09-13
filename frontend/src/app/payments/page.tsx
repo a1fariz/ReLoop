@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Wallet } from 'lucide-react';
-import { getMyPayments } from '@/lib/api';
+import { apiErrorMessage, getMyPayments } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import { useAuthStore } from '@/lib/auth';
@@ -22,7 +22,7 @@ export default function PaymentsPage() {
   const { accessToken } = useAuthStore();
   const [page, setPage] = useState(0);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: queryKeys.payments.mine(page, 20),
     queryFn: () => getMyPayments(page, 20),
     enabled: accessToken !== null,
@@ -51,9 +51,11 @@ export default function PaymentsPage() {
           <p className="text-sm text-zinc-600 mt-3 max-w-2xl leading-relaxed">{t('pay_desc')}</p>
         </div>
 
+        {isError && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-800"><p>{apiErrorMessage(error)}</p><button onClick={() => void refetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button></div>}
+
         {isPending && <div className="h-40 rounded-3xl bg-zinc-100 animate-pulse" />}
 
-        {!isPending && (
+        {!isPending && !isError && (
           <div className="overflow-x-auto bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm">
             <table className="w-full text-left text-xs">
               <thead>

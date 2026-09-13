@@ -20,7 +20,7 @@ export default function ProfilePage() {
   const t = useT();
   const { accessToken } = useAuthStore();
 
-  const { data: profile, isPending } = useQuery({
+  const { data: profile, isPending, isError, error, refetch } = useQuery({
     queryKey: queryKeys.profile.me(),
     queryFn: () => getMyProfile(),
     enabled: accessToken !== null,
@@ -56,8 +56,9 @@ export default function ProfilePage() {
 
         {/* Profile card */}
         <section className="space-y-5">
+          {isError && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-800"><p>{apiErrorMessage(error)}</p><button onClick={() => void refetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button></div>}
           {isPending && <div className="h-40 rounded-3xl bg-zinc-100 animate-pulse" />}
-          {!isPending && profile && (
+          {!isPending && !isError && profile && (
             <>
               <ProfileCard profile={profile} />
               <ProfileForm profile={profile} />

@@ -13,13 +13,13 @@ export default function WarrantiesPage() {
   const { accessToken } = useAuthStore();
   const [page, setPage] = useState(0);
 
-  const { data: warrantyPage, isPending: wPending } = useQuery({
+  const { data: warrantyPage, isPending: wPending, isError: wError, error: wErr, refetch: wRefetch } = useQuery({
     queryKey: queryKeys.warranties.mine(page, 20),
     queryFn: () => getMyWarranties(page, 20),
     enabled: accessToken !== null,
   });
 
-  const { data: disputePage, isPending: dPending } = useQuery({
+  const { data: disputePage, isPending: dPending, isError: dError, error: dErr, refetch: dRefetch } = useQuery({
     queryKey: queryKeys.disputes.mine(page, 20),
     queryFn: () => getMyDisputes(page, 20),
     enabled: accessToken !== null,
@@ -51,8 +51,9 @@ export default function WarrantiesPage() {
         {/* My warranties */}
         <section className="space-y-5">
           <h3 className="text-lg font-bold flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-sky-600" /> {t('war_my')}</h3>
+          {wError && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-800"><p>{apiErrorMessage(wErr)}</p><button onClick={() => void wRefetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button></div>}
           {wPending && <div className="h-28 rounded-2xl bg-zinc-100 animate-pulse" />}
-          {!wPending && (
+          {!wPending && !wError && (
             <div className="grid md:grid-cols-2 gap-4">
               {warranties.map((w) => (
                 <div key={w.id} className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
@@ -91,7 +92,8 @@ export default function WarrantiesPage() {
 
         {/* My disputes */}
         <section className="space-y-5">
-          <DisputesSection disputesPending={dPending} disputes={disputePage?.items ?? []} />
+          {dError && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-800"><p>{apiErrorMessage(dErr)}</p><button onClick={() => void dRefetch()} className="btn-primary-dark mt-4 px-5 py-3 text-xs">{t('common_try_again')}</button></div>}
+          {!dError && <DisputesSection disputesPending={dPending} disputes={disputePage?.items ?? []} />}
         </section>
       </div>
     </div>
