@@ -53,6 +53,8 @@ class OrderFulfillmentServiceTest {
 
     @Mock
     private com.reloop.ledger.repository.FinancialJournalEntryRepository journalRepository;
+    @Mock
+    private com.reloop.notifications.service.NotificationService notificationService;
 
     private OrderFulfillmentService service;
 
@@ -68,7 +70,8 @@ class OrderFulfillmentServiceTest {
                 auditService,
                 journalRepository,
                 new ObjectMapper(),
-                new io.micrometer.core.instrument.simple.SimpleMeterRegistry()
+                new io.micrometer.core.instrument.simple.SimpleMeterRegistry(),
+                notificationService
         );
     }
 

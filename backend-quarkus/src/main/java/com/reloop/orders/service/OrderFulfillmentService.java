@@ -16,6 +16,7 @@ import com.reloop.outbox.repository.OutboxEventRepository;
 import com.reloop.units.domain.ProductUnit;
 import com.reloop.units.repository.ProductUnitRepository;
 import com.reloop.warranties.service.WarrantyService;
+import com.reloop.notifications.service.NotificationService;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -45,6 +46,7 @@ public class OrderFulfillmentService {
     private final FinancialJournalEntryRepository journalRepository;
     private final ObjectMapper objectMapper;
     private final MeterRegistry meterRegistry;
+    private final NotificationService notificationService;
     private final UUID instanceCorrelationId;
 
     @Inject
@@ -58,7 +60,8 @@ public class OrderFulfillmentService {
             AuditService auditService,
             FinancialJournalEntryRepository journalRepository,
             ObjectMapper objectMapper,
-            MeterRegistry meterRegistry
+            MeterRegistry meterRegistry,
+            NotificationService notificationService
     ) {
         this.fulfillmentOrderRepository = fulfillmentOrderRepository;
         this.masterOrderRepository = masterOrderRepository;
@@ -70,6 +73,7 @@ public class OrderFulfillmentService {
         this.journalRepository = journalRepository;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
+        this.notificationService = notificationService;
         this.instanceCorrelationId = UUID.randomUUID();
     }
 
@@ -115,6 +119,7 @@ public class OrderFulfillmentService {
         auditService.record("FulfillmentOrder", fulfillment.getId().toString(), "STATE_TRANSITION", sellerUserId,
                 null, FulfillmentOrder.FulfillmentStatus.PROCESSING.name(), FulfillmentOrder.FulfillmentStatus.SHIPPED.name());
         emit("FULFILLMENT_SHIPPED", fulfillment);
+        notifyBuyer(fulfillment, "Order shipped", "Your order is on the way. Tracking: " + courierName + " · " + trackingNumber, "ORDER");
         return fulfillment;
     }
 
@@ -130,6 +135,7 @@ public class OrderFulfillmentService {
         auditService.record("FulfillmentOrder", fulfillment.getId().toString(), "STATE_TRANSITION", null,
                 null, FulfillmentOrder.FulfillmentStatus.SHIPPED.name(), FulfillmentOrder.FulfillmentStatus.DELIVERED.name());
         emit("FULFILLMENT_DELIVERED", fulfillment);
+        notifyBuyer(fulfillment, "Order delivered", "Your order has been delivered and is ready for review.", "ORDER");
         return fulfillment;
     }
 
@@ -205,6 +211,15 @@ public class OrderFulfillmentService {
         meterRegistry.counter("reloop.fulfillment.payout").increment();
         log.infof("Payout disbursed for fulfillment %s: %s", fulfillment.getId(), fulfillment.getSellerNetAmount());
         return fulfillment;
+    }
+
+    private void notifyBuyer(FulfillmentOrder fulfillment, String title, String body, String category) {
+        MasterOrder order = masterOrderRepository.findByIdOptional(fulfillment.getMasterOrderId()).orElse(null);
+        if (order == null) {
+            return;
+        }
+        notificationService.push(order.getBuyerId(), com.reloop.notifications.domain.Notification.Category.valueOf(category),
+                title, body, "FULFILLMENT_ORDER", fulfillment.getId());
     }
 
     private FulfillmentOrder load(UUID fulfillmentId) {
