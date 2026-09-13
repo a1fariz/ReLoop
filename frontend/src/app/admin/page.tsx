@@ -101,7 +101,26 @@ function FulfillmentsTable() {
       {isPending ? (
         <div className="h-40 rounded-2xl bg-zinc-100 animate-pulse" />
       ) : (
-        <div className="overflow-x-auto">
+        <>
+        <div className="space-y-3 md:hidden">
+          {(data?.items ?? []).map((f: FulfillmentOrderDto) => {
+            const next = nextActions[f.fulfillmentStatus];
+            return (
+              <article key={f.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div><p className="font-mono text-[10px] text-zinc-500">{f.id.slice(0, 8)} · unit {f.unitId.slice(0, 8)} · seller #{f.sellerId}</p><p className="mt-1 font-mono text-sm font-bold">Rp {f.sellerNetAmount.toLocaleString('id-ID')}</p><p className="text-[10px] text-zinc-400">fee {f.platformFeeAmount.toLocaleString('id-ID')}</p></div>
+                  <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold ${FULFILLMENT_STYLES[f.fulfillmentStatus] ?? 'text-zinc-700 bg-zinc-50 border-zinc-200'}`}>{f.fulfillmentStatus}</span>
+                </div>
+                <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
+                  <span className="font-mono text-[10px] text-zinc-500">{t('seller_escrow')}: {f.escrowStatus}{f.trackingNumber ? ` · ${f.courierName} · ${f.trackingNumber}` : ''}</span>
+                  {next ? (action.isPending ? <span className="text-[10px] font-mono text-zinc-400">{t('admin_working')}</span> : <button onClick={() => action.mutate({ id: f.id, fn: next.fn })} className="inline-flex items-center gap-1.5 rounded-full bg-zinc-900 px-3 py-1.5 text-[10px] font-bold text-white">{next.icon} {next.label}</button>) : <span className="text-[10px] font-mono text-zinc-400">—</span>}
+                </div>
+              </article>
+            );
+          })}
+          {data && data.items.length === 0 && <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500">{t('admin_no_fulfillments')}</div>}
+        </div>
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-zinc-200 text-[10px] text-zinc-500 uppercase tracking-wider font-mono font-semibold">
@@ -153,6 +172,7 @@ function FulfillmentsTable() {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {data && data.total > data.size && (
