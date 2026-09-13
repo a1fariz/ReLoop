@@ -161,7 +161,6 @@ function DisputeForm({ onDone }: { onDone: () => void }) {
   const t = useT();
   const queryClient = useQueryClient();
   const [fulfillmentOrderId, setFulfillmentOrderId] = useState('');
-  const [sellerId, setSellerId] = useState('');
   const [reason, setReason] = useState('');
   const [claimDescription, setClaimDescription] = useState('');
   const [error, setError] = useState('');
@@ -186,7 +185,6 @@ function DisputeForm({ onDone }: { onDone: () => void }) {
         setError('');
         mutation.mutate({
           fulfillmentOrderId: fulfillmentOrderId.trim(),
-          sellerId: parseInt(sellerId, 10),
           reason: reason.trim(),
           claimDescription: claimDescription.trim(),
         });
@@ -205,14 +203,18 @@ function DisputeForm({ onDone }: { onDone: () => void }) {
           <label className="block text-xs font-semibold mb-1.5">{t('war_fulfillment_id')}</label>
           <input required value={fulfillmentOrderId} onChange={(e) => setFulfillmentOrderId(e.target.value)} className={inputCls} placeholder="00000000-0000-…" />
         </div>
-        <div>
-          <label className="block text-xs font-semibold mb-1.5">{t('war_seller_id')}</label>
-          <input required type="number" min="1" value={sellerId} onChange={(e) => setSellerId(e.target.value)} className={inputCls} placeholder="20" />
-        </div>
       </div>
       <div>
         <label className="block text-xs font-semibold mb-1.5">{t('war_reason')}</label>
-        <input required value={reason} onChange={(e) => setReason(e.target.value)} className={inputCls} placeholder="DAMAGED_SCREEN / NOT_AS_DESCRIBED" maxLength={100} />
+        <select required value={reason} onChange={(e) => setReason(e.target.value)} className={inputCls}>
+          <option value="" disabled>{t('war_reason_placeholder')}</option>
+          <option value="DAMAGED_SCREEN">Layar rusak / Damaged screen</option>
+          <option value="NOT_AS_DESCRIBED">Tidak sesuai deskripsi / Not as described</option>
+          <option value="NOT_FUNCTIONAL">Tidak berfungsi / Not functional</option>
+          <option value="DELIVERY_DAMAGED">Rusak saat pengiriman / Damaged in delivery</option>
+          <option value="WRONG_ITEM">Barang tidak sesuai / Wrong item</option>
+          <option value="OTHER">Lainnya / Other</option>
+        </select>
       </div>
       <div>
         <label className="block text-xs font-semibold mb-1.5">{t('war_claim')}</label>

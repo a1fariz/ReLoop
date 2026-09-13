@@ -335,6 +335,7 @@ const dict = {
   war_fulfillment_id: { id: 'ID Fulfillment (UUID)', en: 'Fulfillment ID (UUID)' },
   war_seller_id: { id: 'ID Seller', en: 'Seller ID' },
   war_reason: { id: 'Alasan', en: 'Reason' },
+  war_reason_placeholder: { id: 'Pilih alasan sengketa', en: 'Select a dispute reason' },
   war_claim: { id: 'Deskripsi Klaim', en: 'Claim Description' },
   war_submit_dispute: { id: 'Kirim Sengketa', en: 'Submit Dispute' },
   war_dispute_filed: { id: 'Sengketa terdaftar.', en: 'Dispute registered.' },

@@ -136,7 +136,6 @@ export interface DisputeResponse {
 
 export interface CreateDisputeRequest {
   fulfillmentOrderId: string;
-  sellerId: number;
   reason: string;
   claimDescription: string;
 }

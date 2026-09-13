@@ -341,12 +341,13 @@ function CreateListingForm({ onDone }: { onDone: () => void }) {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    const urls = images.split(/\r?\n/).map((url) => url.trim()).filter(Boolean);
     mutation.mutate({
       unitId: unitId.trim(),
       title: title.trim(),
       description: description.trim() || undefined,
       askingPrice: parseInt(askingPrice, 10),
-      images: images.trim() || undefined,
+      images: urls.length > 0 ? JSON.stringify(urls) : undefined,
     });
   }
 
@@ -376,7 +377,8 @@ function CreateListingForm({ onDone }: { onDone: () => void }) {
       </div>
       <div>
         <label className="block text-xs font-semibold mb-1.5">{t('seller_images')}</label>
-        <input value={images} onChange={(e) => setImages(e.target.value)} className={inputCls} placeholder='["https://..."]' />
+        <textarea value={images} onChange={(e) => setImages(e.target.value)} rows={3} className={inputCls} placeholder="https://example.com/photo-1.jpg&#10;https://example.com/photo-2.jpg" />
+        <p className="mt-1 text-[11px] text-zinc-500">Satu URL per baris</p>
       </div>
       <button type="submit" disabled={mutation.isPending} className="btn-blue px-6 py-3 text-xs disabled:opacity-60">
         {mutation.isPending ? t('seller_creating') : t('seller_create_listing')}
