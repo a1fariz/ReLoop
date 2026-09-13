@@ -41,14 +41,14 @@ public class ListingService {
     @Transactional(Transactional.TxType.SUPPORTS)
     public List<ListingDto> getActiveListings() {
         return listingRepository.findByStatus(Listing.ListingStatus.ACTIVE).stream()
-                .map(ListingService::toDto)
+                .map(this::toDto)
                 .toList();
     }
 
     @Transactional(Transactional.TxType.SUPPORTS)
     public ListingDto getListingById(UUID id) {
         return listingRepository.findByIdOptional(id)
-                .map(ListingService::toDto)
+                .map(this::toDto)
                 .orElseThrow(() -> new BusinessException("Listing not found", "LISTING_NOT_FOUND", 404));
     }
 
@@ -178,7 +178,7 @@ public class ListingService {
         long total = results.count();
         List<ListingDto> items = results.page(io.quarkus.panache.common.Page.of(page, size)).list()
                 .stream()
-                .map(ListingService::toDto)
+                .map(this::toDto)
                 .toList();
         return new com.reloop.common.dto.Page<>(items, total, page, size);
     }
