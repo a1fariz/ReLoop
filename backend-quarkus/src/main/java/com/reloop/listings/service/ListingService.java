@@ -167,11 +167,11 @@ public class ListingService {
             case "priceDesc" -> io.quarkus.panache.common.Sort.by("askingPrice", io.quarkus.panache.common.Sort.Direction.Descending);
             default -> io.quarkus.panache.common.Sort.descending("createdAt");
         };
-        var query = listingRepository.search(com.reloop.listings.domain.Listing.ListingStatus.ACTIVE,
+        var results = listingRepository.search(com.reloop.listings.domain.Listing.ListingStatus.ACTIVE,
                 query, minPrice, maxPrice, grade, order);
         // PanacheQuery from the ORM module
-        long total = query.count();
-        List<ListingDto> items = query.page(io.quarkus.panache.common.Page.of(page, size)).list()
+        long total = results.count();
+        List<ListingDto> items = results.page(io.quarkus.panache.common.Page.of(page, size)).list()
                 .stream()
                 .map(ListingService::toDto)
                 .toList();
