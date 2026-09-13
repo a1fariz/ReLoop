@@ -48,6 +48,7 @@ const dict = {
   footer_ledger: { id: 'Ledger Double-Entry', en: 'Double-Entry Ledger' },
   footer_help: { id: 'Bantuan', en: 'Help' },
   footer_contact: { id: 'Hubungi kami', en: 'Contact us' },
+  footer_legal: { id: 'Legal & Kebijakan', en: 'Legal & Policies' },
 
   // Common
   common_prev: { id: '← Sebelumnya', en: '← Prev' },

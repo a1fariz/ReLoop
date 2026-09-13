@@ -44,6 +44,7 @@ export function Footer() {
                <li><Link href="/returns" className="hover:text-[#1d1d1f] transition-colors">{t('nav_returns')}</Link></li>
                <li><Link href="/warranties" className="hover:text-[#1d1d1f] transition-colors">{t('footer_protection')}</Link></li>
                <li><a href="mailto:alfarizi.developer@gmail.com" className="hover:text-[#1d1d1f] transition-colors">{t('footer_contact')}</a></li>
+             <li><Link href="/legal" className="hover:text-[#1d1d1f] transition-colors">{t('footer_legal')}</Link></li>
              </ul>
            </div>
         </div>
