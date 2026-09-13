@@ -20,6 +20,18 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "ReLoop — Certified Circular Hardware Marketplace",
   description: "Enterprise circular tech ecosystem backed by 50-point diagnostic matrix, pessimistic row-lock checkout leases, and double-entry ledger escrow settlement.",
+  alternates: {
+    canonical: "https://www.reloop.biz.id",
+    languages: { "id-ID": "https://www.reloop.biz.id", "en-US": "https://www.reloop.biz.id" },
+  },
+  openGraph: {
+    title: "ReLoop — Certified Circular Hardware Marketplace",
+    description: "Certified circular hardware marketplace with verified listings and escrow protection.",
+    url: "https://www.reloop.biz.id",
+    siteName: "ReLoop",
+    type: "website",
+  },
+  metadataBase: new URL("https://www.reloop.biz.id"),
 };
 
 export default function RootLayout({
