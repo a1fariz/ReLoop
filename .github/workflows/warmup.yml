@@ -1,0 +1,19 @@
+name: warmup
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping-backend:
+    name: Keep Render backend warm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          curl -fsS -o /dev/null -w "health_status=%{http_code} time=%{time_total}s\n" \
+            https://reloop-backend-b5qx.onrender.com/q/health
