@@ -10,7 +10,6 @@ import java.util.UUID;
 public class DisputeDtos {
     public record CreateDisputeRequest(
         @NotNull UUID fulfillmentOrderId,
-        @NotNull Long sellerId,
         @NotBlank @Size(max = 100) String reason,
         @NotBlank @Size(max = 2000) String claimDescription
     ) {}

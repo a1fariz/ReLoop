@@ -175,7 +175,7 @@ class DisputeServiceTest {
         stubOwnership(fulfillmentId, 10L);
         when(disputeRepository.findByFulfillmentOrderIdAndStatusOpen(fulfillmentId)).thenReturn(Optional.empty());
 
-        var request = new DisputeDtos.CreateDisputeRequest(fulfillmentId, 20L, "DAMAGED_SCREEN", "screen cracks");
+        var request = new DisputeDtos.CreateDisputeRequest(fulfillmentId, "DAMAGED_SCREEN", "screen cracks");
         var response = disputeService.createDispute(10L, request);
 
         assertThat(response.status()).isEqualTo("OPEN");
@@ -191,7 +191,7 @@ class DisputeServiceTest {
         UUID fulfillmentId = UUID.randomUUID();
         stubOwnership(fulfillmentId, 10L);
 
-        var request = new DisputeDtos.CreateDisputeRequest(fulfillmentId, 20L, "DAMAGED", "not my order");
+        var request = new DisputeDtos.CreateDisputeRequest(fulfillmentId, "DAMAGED", "not my order");
         assertThatThrownBy(() -> disputeService.createDispute(99L, request))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Only the buyer");
@@ -205,7 +205,7 @@ class DisputeServiceTest {
         when(disputeRepository.findByFulfillmentOrderIdAndStatusOpen(fulfillmentId))
                 .thenReturn(Optional.of(new Dispute(fulfillmentId, 10L, 20L, "DAMAGED", "first")));
 
-        var request = new DisputeDtos.CreateDisputeRequest(fulfillmentId, 20L, "DAMAGED", "second attempt");
+        var request = new DisputeDtos.CreateDisputeRequest(fulfillmentId, "DAMAGED", "second attempt");
         assertThatThrownBy(() -> disputeService.createDispute(10L, request))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("already exists");

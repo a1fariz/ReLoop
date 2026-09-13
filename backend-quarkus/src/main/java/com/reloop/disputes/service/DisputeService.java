@@ -73,7 +73,7 @@ public class DisputeService {
         Dispute dispute = new Dispute(
                 request.fulfillmentOrderId(),
                 buyerId,
-                request.sellerId(),
+                fulfillment.getSellerId(),
                 request.reason(),
                 request.claimDescription()
         );
