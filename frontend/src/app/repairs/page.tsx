@@ -156,7 +156,31 @@ function TicketsTable() {
       {isPending ? (
         <div className="h-40 rounded-2xl bg-zinc-100 animate-pulse" />
       ) : (
-        <div className="overflow-x-auto">
+        <>
+        <div className="space-y-3 md:hidden">
+          {(data?.items ?? []).map((r: RepairTicketDto) => (
+            <article key={r.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div><p className="font-mono text-[10px] text-zinc-500">{r.id.slice(0, 8)} · {new Date(r.createdAt).toLocaleDateString('id-ID')} · unit {r.unitId.slice(0, 8)}</p><p className="mt-1 line-clamp-2 text-sm font-semibold text-zinc-900">{r.issueDescription}</p></div>
+                <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold ${STATUS_STYLES[r.status] ?? 'text-zinc-700 bg-zinc-50 border-zinc-200'}`}>{r.status}</span>
+              </div>
+              <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
+                <span className="font-mono text-xs font-bold">{t('rep_parts_cost')}: Rp {r.partsCost.toLocaleString('id-ID')}</span>
+                {action.isPending ? <span className="text-[10px] font-mono text-zinc-400">{t('admin_working')}</span> : (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {r.status === 'OPEN' && <button onClick={() => action.mutate({ id: r.id, fn: repairStartDiagnosis })} className="rounded-full bg-zinc-900 px-3 py-1.5 text-[10px] font-bold text-white">{t('rep_start_diagnosis')}</button>}
+                    {r.status === 'DIAGNOSING' && <button onClick={() => setModal({ kind: 'startRepair', ticket: r })} className="rounded-full bg-zinc-900 px-3 py-1.5 text-[10px] font-bold text-white">{t('rep_start_repair')}</button>}
+                    {r.status === 'IN_PROGRESS' && <button onClick={() => setModal({ kind: 'submitQc', ticket: r })} className="rounded-full bg-zinc-900 px-3 py-1.5 text-[10px] font-bold text-white">{t('rep_submit_qc')}</button>}
+                    {r.status === 'QC_PENDING' && <button onClick={() => setModal({ kind: 'complete', ticket: r })} className="rounded-full bg-zinc-900 px-3 py-1.5 text-[10px] font-bold text-white">{t('rep_complete')}</button>}
+                    {(r.status === 'OPEN' || r.status === 'DIAGNOSING' || r.status === 'IN_PROGRESS') && <button onClick={() => setModal({ kind: 'cancel', ticket: r })} className="rounded-full border border-red-200 bg-white px-3 py-1.5 text-[10px] font-bold text-red-700">{t('rep_cancel_ticket')}</button>}
+                  </div>
+                )}
+              </div>
+            </article>
+          ))}
+          {data && data.items.length === 0 && <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500">{t('rep_empty')}</div>}
+        </div>
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-zinc-200 text-[10px] text-zinc-500 uppercase tracking-wider font-mono font-semibold">
@@ -229,6 +253,7 @@ function TicketsTable() {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {data && data.total > data.size && (
