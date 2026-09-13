@@ -71,6 +71,10 @@ const dict = {
   common_something_wrong: { id: 'Terjadi kesalahan', en: 'Something went wrong' },
   common_try_again: { id: 'Coba Lagi', en: 'Try Again' },
   common_sign_in_required: { id: 'Masuk untuk melihat pesanan Anda', en: 'Sign in to view your orders' },
+  error_title: { id: 'Kesalahan', en: 'Error' },
+  error_heading: { id: 'Terjadi kesalahan', en: 'Something went wrong' },
+  error_body: { id: 'Halaman ini gagal dimuat. Silakan coba lagi atau kembali ke beranda.', en: 'This page failed to load. Please try again or return home.' },
+  error_home: { id: 'Kembali ke Beranda', en: 'Back to Home' },
   common_cancel: { id: 'Batal', en: 'Cancel' },
 
   // Catalog
