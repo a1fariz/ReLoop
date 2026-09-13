@@ -171,6 +171,8 @@ export default function CatalogPage() {
                           <img
                             src={image}
                             alt={item.title}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out drop-shadow-md"
                           />
                         ) : (

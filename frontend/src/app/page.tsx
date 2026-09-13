@@ -70,7 +70,7 @@ export default function HomePage() {
         <FadeInView delay={0.15} className="min-w-0">
           <div className="relative overflow-hidden rounded-[2rem] border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
             <div className="aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-stone-100">
-              {showcaseItems[0] && parseImages(showcaseItems[0].images)[0] ? <img src={parseImages(showcaseItems[0].images)[0]} alt={showcaseItems[0].title} className="h-full w-full object-contain p-8" /> : <div className="flex h-full items-center justify-center text-sm text-stone-500">{t('home_empty')}</div>}
+              {showcaseItems[0] && parseImages(showcaseItems[0].images)[0] ? <img src={parseImages(showcaseItems[0].images)[0]} alt={showcaseItems[0].title} className="h-full w-full object-contain p-8" loading="lazy" decoding="async" /> : <div className="flex h-full items-center justify-center text-sm text-stone-500">{t('home_empty')}</div>}
             </div>
             {showcaseItems[0] && <div className="flex items-end justify-between gap-4 px-2 pt-5"><div><p className="text-xs font-mono uppercase tracking-wider text-stone-500">{t('common_grade')} {showcaseItems[0].gradeSnapshot}</p><h2 className="mt-1 line-clamp-2 text-lg font-bold text-stone-950">{showcaseItems[0].title}</h2></div><Link href={`/catalog/${showcaseItems[0].id}`} className="shrink-0 text-sm font-semibold text-sky-800">{t('catalog_inspect')} <ArrowRight className="inline h-4 w-4" /></Link></div>}
           </div>
@@ -109,6 +109,8 @@ export default function HomePage() {
                         <img
                           src={image}
                           alt={item.title}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out drop-shadow-md"
                         />
                       ) : (

@@ -77,7 +77,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
             <div className="luxury-card p-7 overflow-hidden">
               <div className="aspect-[4/3] w-full rounded-2xl bg-gradient-to-br from-zinc-50 to-zinc-100 border border-zinc-200 relative flex items-center justify-center p-8 overflow-hidden">
                 {image ? (
-                  <img src={image} alt={listing.title} className="max-h-full max-w-full object-contain drop-shadow-xl" />
+                  <img src={image} alt={listing.title} loading="lazy" decoding="async" className="max-h-full max-w-full object-contain drop-shadow-xl" />
                 ) : (
                   <div className="text-6xl font-mono text-zinc-300">RL</div>
                 )}
