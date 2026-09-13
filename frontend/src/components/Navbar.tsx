@@ -76,8 +76,8 @@ export function Navbar() {
 
   // Latest listings for the command dialog (backend search filters by price/grade; no text search yet)
   const { data: latest } = useQuery({
-    queryKey: queryKeys.listings.search({ page: 0, size: 5, sort: 'newest' }),
-    queryFn: () => searchListings({ page: 0, size: 5, sort: 'newest' }),
+    queryKey: queryKeys.listings.search({ page: 0, size: 5, sort: 'newest', q: searchTerm.trim() || undefined }),
+    queryFn: () => searchListings({ page: 0, size: 5, sort: 'newest', q: searchTerm.trim() || undefined }),
     enabled: isSearchOpen,
   });
 

@@ -49,6 +49,7 @@ export interface ListingDto {
 }
 
 export interface ListingSearchParams {
+  q?: string;
   minPrice?: number;
   maxPrice?: number;
   grade?: string;
