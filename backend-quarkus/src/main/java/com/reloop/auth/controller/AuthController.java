@@ -1,6 +1,7 @@
 package com.reloop.auth.controller;
 
 import com.reloop.auth.dto.AuthResponse;
+import com.reloop.auth.dto.FirebaseLoginRequest;
 import com.reloop.auth.dto.LoginRequest;
 import com.reloop.auth.dto.RefreshTokenRequest;
 import com.reloop.auth.dto.RegisterRequest;
@@ -43,6 +44,13 @@ public class AuthController {
     public RestResponse<ApiResponse<AuthResponse>> login(@Valid LoginRequest request, HttpServerRequest httpRequest) {
         AuthResponse response = authService.login(request, clientIp(httpRequest));
         return RestResponse.ok(ApiResponse.ok(response, "Login successful", correlationContext.getCorrelationId()));
+    }
+
+    @POST
+    @Path("/firebase")
+    public RestResponse<ApiResponse<AuthResponse>> firebaseLogin(@Valid FirebaseLoginRequest request, HttpServerRequest httpRequest) {
+        AuthResponse response = authService.loginWithFirebase(request, clientIp(httpRequest));
+        return RestResponse.ok(ApiResponse.ok(response, "Firebase login successful", correlationContext.getCorrelationId()));
     }
 
     /** Prefers the gateway-provided X-Real-IP so throttling keys on the real client. */

@@ -7,6 +7,7 @@ import { apiErrorMessage, getMyPayments } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import { useAuthStore } from '@/lib/auth';
+import FirebaseGoogleButton from '@/components/FirebaseGoogleButton';
 import type { PaymentAttemptDto } from '@/types/api';
 
 const PAYMENT_STATUS_STYLES: Record<string, string> = {
@@ -33,6 +34,9 @@ export default function PaymentsPage() {
       <div className="min-h-screen bg-[#fafafa] py-24 text-center">
         <Wallet className="h-12 w-12 text-zinc-300 mx-auto mb-4" />
         <h1 className="text-2xl font-bold mb-2">{t('common_sign_in_required')}</h1>
+        <div className="mx-auto mt-4 max-w-xs">
+          <FirebaseGoogleButton />
+        </div>
       </div>
     );
   }

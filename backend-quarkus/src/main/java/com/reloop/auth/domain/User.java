@@ -31,6 +31,11 @@ public class User {
     @Column(nullable = false)
     private boolean isLocked = false;
 
+    @Column(nullable = false)
+    private String authProvider = "LOCAL";
+
+    private String firebaseUid;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -66,6 +71,10 @@ public class User {
     public void setVerified(boolean verified) { isVerified = verified; }
     public boolean isLocked() { return isLocked; }
     public void setLocked(boolean locked) { isLocked = locked; }
+    public String getAuthProvider() { return authProvider; }
+    public void setAuthProvider(String authProvider) { this.authProvider = authProvider; }
+    public String getFirebaseUid() { return firebaseUid; }
+    public void setFirebaseUid(String firebaseUid) { this.firebaseUid = firebaseUid; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 

@@ -8,6 +8,7 @@ import { getListing, reserveUnit, confirmPayment } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
 import { useAuthStore } from '@/lib/auth';
+import FirebaseGoogleButton from '@/components/FirebaseGoogleButton';
 
 type Reservation = { token: string; remainingSeconds: number };
 type Order = { orderNumber: string; totalAmount: number; paymentStatus: string; escrowStatus: string };
@@ -73,6 +74,10 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
         <h1 className="text-2xl font-bold text-stone-950">{t('checkout_sign_in')}</h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-stone-600">{t('checkout_sign_in_desc')}</p>
         <Link href={`/login?next=/checkout/${params.id}`} className="btn-blue mt-6 px-6 py-3 text-xs">{t('nav_sign_in')}</Link>
+        <div className="mx-auto mt-4 max-w-xs">
+          <div className="relative my-3"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-stone-200" /></div><div className="relative flex justify-center text-xs"><span className="bg-[#fafaf9] px-3 text-stone-400 uppercase">{t('auth_or')}</span></div></div>
+          <FirebaseGoogleButton />
+        </div>
       </main>
     );
   }

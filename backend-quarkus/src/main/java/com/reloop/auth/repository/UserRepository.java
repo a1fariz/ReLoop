@@ -13,6 +13,10 @@ public class UserRepository implements ReloopRepository<User, Long> {
         return find("email", email).firstResultOptional();
     }
 
+    public Optional<User> findByFirebaseUid(String firebaseUid) {
+        return find("firebaseUid", firebaseUid).firstResultOptional();
+    }
+
     public boolean existsByEmail(String email) {
         return count("email", email) > 0;
     }

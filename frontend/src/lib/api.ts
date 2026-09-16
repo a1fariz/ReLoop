@@ -66,6 +66,12 @@ export function logout() {
   useAuthStore.getState().clearSession();
 }
 
+export async function loginWithFirebase(idToken: string): Promise<AuthData> {
+  const auth = unwrap<AuthData>(await apiClient.post('/auth/firebase', { idToken }));
+  useAuthStore.getState().setSession(auth);
+  return auth;
+}
+
 // ---------- listings ----------
 export async function searchListings(params: ListingSearchParams = {}): Promise<Page<ListingDto>> {
   return unwrap<Page<ListingDto>>(await apiClient.get('/listings/search', { params }));

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { AlertCircle } from 'lucide-react';
 import { register } from '@/lib/api';
 import { useT } from '@/lib/i18n';
+import FirebaseGoogleButton from '@/components/FirebaseGoogleButton';
 
 const registerSchema = z.object({
   fullName: z.string().min(3, 'Full name must be at least 3 characters'),
@@ -54,7 +55,13 @@ export default function RegisterPage() {
         <Field id="email" label={t('auth_email')} value={email} onChange={setEmail} error={errors.email} type="email" autoComplete="email" />
         <Field id="password" label={t('auth_password')} value={password} onChange={setPassword} error={errors.password} type="password" autoComplete="new-password" />
         <button type="submit" disabled={loading} aria-busy={loading} className="w-full btn-blue py-3.5 text-sm shadow-md disabled:cursor-not-allowed disabled:opacity-60">{loading ? t('auth_registering') : t('auth_register')}</button>
-      </form><div className="pt-5 border-t border-zinc-100 text-center text-xs text-zinc-500">{t('auth_have_account')} <Link href="/login" className="text-sky-600 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded font-semibold transition-colors">{t('auth_login')}</Link></div></div></div>
+      </form>
+      <div className="relative my-2">
+        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-200" /></div>
+        <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-zinc-400 uppercase">{t('auth_or')}</span></div>
+      </div>
+      <FirebaseGoogleButton />
+      <div className="pt-5 border-t border-zinc-100 text-center text-xs text-zinc-500">{t('auth_have_account')} <Link href="/login" className="text-sky-600 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded font-semibold transition-colors">{t('auth_login')}</Link></div></div></div>
     </div>
   );
 }

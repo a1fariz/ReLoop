@@ -3,6 +3,7 @@ package com.reloop.auth.service;
 import com.reloop.auth.domain.RefreshToken;
 import com.reloop.auth.domain.User;
 import com.reloop.auth.dto.AuthResponse;
+import com.reloop.auth.dto.FirebaseLoginRequest;
 import com.reloop.auth.dto.LoginRequest;
 import com.reloop.auth.dto.RegisterRequest;
 import com.reloop.auth.repository.RefreshTokenRepository;
@@ -41,6 +42,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final LoginRateLimiter loginRateLimiter;
+    private final FirebaseTokenVerifier firebaseTokenVerifier;
     private final long refreshTokenExpirationDays;
 
     public AuthService(
@@ -48,6 +50,7 @@ public class AuthService {
             RefreshTokenRepository refreshTokenRepository,
             JwtService jwtService,
             LoginRateLimiter loginRateLimiter,
+            FirebaseTokenVerifier firebaseTokenVerifier,
             @ConfigProperty(name = "jwt.refresh-token-expiration-days", defaultValue = "7") long refreshTokenExpirationDays,
             @ConfigProperty(name = "reloop.rate-limit.login.max-attempts", defaultValue = "10") int loginMaxAttempts,
             @ConfigProperty(name = "reloop.rate-limit.login.window-seconds", defaultValue = "60") int loginWindowSeconds,
@@ -65,6 +68,7 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder(12);
         this.jwtService = jwtService;
         this.loginRateLimiter = loginRateLimiter;
+        this.firebaseTokenVerifier = firebaseTokenVerifier;
         this.refreshTokenExpirationDays = refreshTokenExpirationDays;
         this.loginMaxAttempts = loginMaxAttempts;
         this.loginWindowSeconds = loginWindowSeconds;
@@ -201,6 +205,56 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException("User not found", "USER_NOT_FOUND", 404));
 
         return createAuthSession(user, token.getFamilyId());
+    }
+
+    @Transactional
+    public AuthResponse loginWithFirebase(FirebaseLoginRequest request, String clientIp) {
+        if (!loginRateLimiter.isAllowed(
+                List.of("ratelimit:login:ip:" + (clientIp == null || clientIp.isBlank() ? "unknown" : clientIp)),
+                loginMaxAttempts, loginWindowSeconds)) {
+            throw new BusinessException("Too many login attempts. Please try again later.", "RATE_LIMIT_EXCEEDED", 429);
+        }
+
+        FirebaseTokenVerifier.FirebaseUser firebaseUser = firebaseTokenVerifier.verifyToken(request.idToken());
+        String normalizedEmail = firebaseUser.email().trim().toLowerCase();
+
+        Optional<User> foundByUid = userRepository.findByFirebaseUid(firebaseUser.uid());
+        User user;
+
+        if (foundByUid.isPresent()) {
+            user = foundByUid.get();
+        } else {
+            Optional<User> foundByEmail = userRepository.findByEmail(normalizedEmail);
+            if (foundByEmail.isPresent()) {
+                user = foundByEmail.get();
+                user.setFirebaseUid(firebaseUser.uid());
+                if ("LOCAL".equals(user.getAuthProvider())) {
+                    user.setAuthProvider("FIREBASE_LINKED");
+                }
+                userRepository.save(user);
+            } else {
+                String fullName = (firebaseUser.name() != null && !firebaseUser.name().isBlank())
+                        ? firebaseUser.name().trim()
+                        : normalizedEmail.split("@")[0];
+                user = new User(
+                        normalizedEmail,
+                        passwordEncoder.encode(UUID.randomUUID().toString()),
+                        fullName,
+                        null,
+                        User.Role.CUSTOMER
+                );
+                user.setVerified(firebaseUser.emailVerified());
+                user.setAuthProvider("FIREBASE");
+                user.setFirebaseUid(firebaseUser.uid());
+                user = userRepository.save(user);
+            }
+        }
+
+        if (user.isLocked()) {
+            throw new BusinessException("Account is locked", "ACCOUNT_LOCKED", 403);
+        }
+
+        return createAuthSession(user, UUID.randomUUID());
     }
 
     private AuthResponse createAuthSession(User user, UUID familyId) {

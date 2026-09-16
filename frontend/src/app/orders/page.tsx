@@ -8,6 +8,7 @@ import { useAuthStore } from '@/lib/auth';
 import { getMyOrders, apiErrorMessage } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useT } from '@/lib/i18n';
+import FirebaseGoogleButton from '@/components/FirebaseGoogleButton';
 import type { MasterOrderDto } from '@/types/api';
 
 const PAYMENT_STYLES: Record<string, string> = {
@@ -26,7 +27,7 @@ export default function OrdersPage() {
     enabled: accessToken !== null,
   });
 
-  if (!accessToken) return <div className="min-h-screen bg-[#fafaf9] py-24 text-center"><Package className="mx-auto mb-4 h-12 w-12 text-stone-300" /><h1 className="mb-2 text-2xl font-bold">{t('common_sign_in_required')}</h1><Link href="/login" className="btn-blue mt-2 inline-flex px-6 py-3 text-xs">{t('nav_sign_in')}</Link></div>;
+  if (!accessToken) return <div className="min-h-screen bg-[#fafaf9] py-24 text-center"><Package className="mx-auto mb-4 h-12 w-12 text-stone-300" /><h1 className="mb-2 text-2xl font-bold">{t('common_sign_in_required')}</h1><Link href="/login" className="btn-blue mt-2 inline-flex px-6 py-3 text-xs">{t('nav_sign_in')}</Link><div className="mx-auto mt-4 max-w-xs"><div className="relative my-3"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-stone-200" /></div><div className="relative flex justify-center text-xs"><span className="bg-[#fafaf9] px-3 text-stone-400 uppercase">{t('auth_or')}</span></div></div><FirebaseGoogleButton /></div></div>;
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.size)) : 1;
 
   return <main className="min-h-screen bg-[#fafaf9] py-12 text-stone-950 sm:py-16 ambient-light-mesh"><div className="mx-auto max-w-5xl px-4 sm:px-6">

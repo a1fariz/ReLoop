@@ -281,6 +281,8 @@ const dict = {
   auth_login_fail: { id: 'Gagal masuk. Coba lagi.', en: 'Login failed. Try again.' },
   auth_register_fail: { id: 'Gagal membuat akun. Coba lagi.', en: 'Account creation failed. Try again.' },
   auth_identity_authority: { id: 'Otoritas Identitas ReLoop [RBAC]', en: 'ReLoop Identity Authority [RBAC]' },
+  auth_or: { id: 'atau', en: 'or' },
+  auth_google_signin: { id: 'Masuk dengan Google', en: 'Sign in with Google' },
 
   // 404
   notfound_code: { id: 'Sinyal Hilang', en: 'Signal Lost' },

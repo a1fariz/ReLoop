@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { AlertCircle } from 'lucide-react';
 import { login } from '@/lib/api';
 import { useT } from '@/lib/i18n';
+import FirebaseGoogleButton from '@/components/FirebaseGoogleButton';
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -64,6 +65,11 @@ export default function LoginPage() {
             </div>
             <button type="submit" disabled={loading} aria-busy={loading} className="w-full btn-blue py-3.5 text-sm shadow-md disabled:cursor-not-allowed disabled:opacity-60">{loading ? t('auth_logging_in') : t('auth_login')}</button>
           </form>
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-200" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-zinc-400 uppercase">{t('auth_or')}</span></div>
+          </div>
+          <FirebaseGoogleButton />
           <div className="pt-5 border-t border-zinc-100 text-center text-xs text-zinc-500">{t('auth_no_account')} <Link href="/register" className="text-sky-600 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded font-semibold transition-colors">{t('auth_register')}</Link></div>
         </div>
       </div>
