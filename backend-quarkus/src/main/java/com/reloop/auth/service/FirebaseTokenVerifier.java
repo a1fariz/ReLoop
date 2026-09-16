@@ -39,11 +39,6 @@ public class FirebaseTokenVerifier {
             throw new BusinessException("Missing Firebase ID token", "INVALID_FIREBASE_TOKEN", 401);
         }
 
-        if (idToken.startsWith("mock-token:")) {
-            String email = idToken.substring("mock-token:".length());
-            return new FirebaseUser("mock-uid-" + email, email, "Mock User", true);
-        }
-
         try {
             String endpoint = "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=" + apiKey;
             String requestBody = objectMapper.writeValueAsString(Map.of("idToken", idToken));
