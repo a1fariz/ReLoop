@@ -9,9 +9,11 @@
 [![Redis 7](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Live deployment:** frontend on [reloop.biz.id](https://reloop.biz.id) (Vercel) · backend on Render (Singapore) · PostgreSQL on Neon · Redis on Upstash. Flyway V1–V19 auto-applies on boot, including demo seed data.
+> **Live deployment:** frontend on [reloop.biz.id](https://reloop.biz.id) (Vercel) · backend on Render (Singapore) · PostgreSQL on Neon · Redis on Upstash. Flyway V1–V22 auto-applies on boot, including demo seed data.
 >
 > **Demo accounts** (password `SecurePass123!`): `customer@reloop.com` · `seller@reloop.com` · `tech@reloop.com` · `admin@reloop.com`
+>
+> **Google Sign-In** also available — click "Sign in with Google" on the login page to authenticate via Firebase Auth without creating a password.
 
 ReLoop is an enterprise-grade circular commerce platform built for authenticated serialized electronics, 50-point technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
 
@@ -34,9 +36,10 @@ ReLoop is an enterprise-grade circular commerce platform built for authenticated
 
 ### Backend (primary — Quarkus)
 - **Java 17 LTS · Quarkus 3.15** (RESTEasy Reactive, Hibernate ORM Panache, Flyway)
-- **PostgreSQL 16** — Flyway Migrations V1 to V19 (schema + demo seed)
+- **PostgreSQL 16** — Flyway Migrations V1 to V22 (schema + demo seed + Firebase auth)
 - **Redis 7** — catalog cache, login rate limiting (Upstash TLS in cloud)
 - **JWT (JJWT) + BCrypt cost-12** — refresh token rotation family
+- **Firebase Auth (Google Sign-In)** — ID token verification via Google Identity Toolkit API, auto-register/link users
 - **Transactional Outbox** — LOG / Kafka dispatch, email bridge
 - **JUnit 5, AssertJ, Mockito, ArchUnit, Testcontainers** — 115 unit tests + full-stack IT
 
@@ -47,6 +50,7 @@ ReLoop is an enterprise-grade circular commerce platform built for authenticated
 - **Next.js 14 (App Router)** & **TypeScript**
 - **Tailwind CSS** (Design-MD & Stripe/Linear Tokens)
 - **TanStack Query v5** + Zustand auth store with single-flight refresh rotation
+- **Firebase SDK** — Google Sign-In popup with `signInWithPopup`, integrated across all auth-guarded pages
 - **Lucide React Icons**
 
 ---
@@ -57,7 +61,7 @@ ReLoop is an enterprise-grade circular commerce platform built for authenticated
 reloop/
 ├── backend-quarkus/          # Quarkus 3.15 LTS Modular Monolith (primary backend)
 │   ├── src/main/java/com/reloop/
-│   │   ├── auth/             # JWT, Refresh Token Rotation, RBAC, Redis Login Rate-Limit
+│   │   ├── auth/             # JWT, Refresh Token Rotation, RBAC, Redis Login Rate-Limit, Firebase Google Sign-In
 │   │   ├── catalog/          # Canonical ProductModels & Categories (Redis-cached)
 │   │   ├── units/            # Serialized ProductUnits & Physical Custody
 │   │   ├── listings/         # Verified Seller Listings & Pricing Snapshots
@@ -79,7 +83,7 @@ reloop/
 │   │   ├── notifications/    # In-App Notification Center + Email Outbox Bridge
 │   │   ├── outbox/           # Transactional Outbox → Kafka / Email Dispatch
 │   │   └── audit/            # Immutable Append-Only Audit Trail
-│   └── src/main/resources/db/migration/ # Flyway SQL Migrations (V1 to V19)
+│   └── src/main/resources/db/migration/ # Flyway SQL Migrations (V1 to V22)
 │
 ├── backend/                  # Spring Boot 3.3.4 Modular Monolith (legacy reference)
 │   └── ...                   # Same module layout; kept until Quarkus parity is signed off
@@ -95,8 +99,8 @@ reloop/
 │   │   ├── trade-in/         # Real-time Algorithmic Valuation Calculator
 │   │   ├── warranties/       # Customer Warranty & Dispute Center
 │   │   ├── seller/           # Seller Dashboard & Double-Entry Ledger View
-│   │   └── login/ & register/# Authentication Pages
-│   └── src/lib/              # queryKeys.ts & apiClient.ts
+│   │   └── login/ & register/# Authentication Pages (Email/Password + Google Sign-In)
+│   └── src/lib/              # queryKeys.ts & apiClient.ts & firebase.ts
 │
 ├── docker-compose.yml        # PostgreSQL 16, Redis 7, Mailpit
 ├── .env.example              # Environment Configuration Template
@@ -128,7 +132,7 @@ Services started:
 cd backend-quarkus
 mvn quarkus:dev
 ```
-Backend starts on `http://localhost:8080` and applies Flyway migrations `V1` to `V19` automatically.
+Backend starts on `http://localhost:8080` and applies Flyway migrations `V1` to `V22` automatically.
 Extras over the legacy stack: Swagger UI at [`/q/swagger-ui`](http://localhost:8080/q/swagger-ui),
 health at `/q/health`, Prometheus metrics at `/q/metrics`, Redis-backed catalog cache &
 login rate limiting, and real Kafka/email dispatch from the transactional outbox
@@ -184,7 +188,7 @@ Frontend runs at `http://localhost:3000`.
 |---|---|---|
 | Frontend | Vercel | https://reloop.biz.id |
 | Backend (Quarkus JVM) | Render (Singapore, free) | https://reloop-backend-b5qx.onrender.com |
-| PostgreSQL 18 | Neon (Singapore) | Flyway V1–V19 auto-migrated on boot |
+| PostgreSQL 18 | Neon (Singapore) | Flyway V1–V22 auto-migrated on boot |
 | Redis (TLS) | Upstash (Singapore) | Catalog cache + login rate limiting |
 
 Deploy configuration: [`render.yaml`](render.yaml) (backend service definition). The container is built from [`backend-quarkus/Dockerfile`](backend-quarkus/Dockerfile) directly from this repository.
@@ -203,6 +207,7 @@ Deploy configuration: [`render.yaml`](render.yaml) (backend service definition).
 ## 🔒 Security Notes
 
 - JWT HS256 with env-injected secret (`JWT_SECRET`), 15-min access tokens, 7-day rotating refresh families
+- Firebase Auth integration: server-side ID token verification via Google Identity Toolkit API (no mock/bypass in production)
 - IDOR guards: every resource access verifies ownership server-side (buyer/seller/technician/admin)
 - PostgreSQL authority: `audit_logs` & `lifecycle_events` append-only; financial movements only via double-entry journals
 - Rate limiting: Redis-backed login throttling + Nginx gateway rate zones
