@@ -11,18 +11,17 @@
 
 > **Live deployment:** frontend on [reloop.biz.id](https://reloop.biz.id) (Vercel) · backend on Render (Singapore) · PostgreSQL on Neon · Redis on Upstash. Flyway V1–V22 auto-applies on boot, including demo seed data.
 >
-> **Demo accounts** (password `SecurePass123!`): `customer@reloop.com` · `seller@reloop.com` · `tech@reloop.com` · `admin@reloop.com`
 >
 > **Google Sign-In** also available — click "Sign in with Google" on the login page to authenticate via Firebase Auth without creating a password.
 
-ReLoop is an enterprise-grade circular commerce platform built for authenticated serialized electronics, 50-point technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
+ReLoop is an portfolio circular commerce platform built for authenticated serialized electronics, 50-point technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
 
 ---
 
 ## 🏛️ Architecture Highlights
 
 - **Modular Monolith Architecture:** Primary backend on **Quarkus 3.15** (JVM) with 25 bounded-context modules, ArchUnit-verified boundaries (`ModuleBoundaryArchitectureTest`), transactional outbox, and immutable audit trail. A **Spring Boot 3.3 / Spring Modulith** twin is kept as a legacy reference (migration story).
-- **Double-Entry Financial Ledger:** Every monetary movement (Escrow Hold, Platform Commission, Seller Payout, Partial Dispute Refund) is recorded in balanced Debit/Credit (`DR`/`CR`) journal lines with zero financial discrepancies ($\sum \text{Debits} = \sum \text{Credits}$).
+- **Double-Entry Financial Ledger:** Every monetary movement (Escrow Hold, Platform Commission, Seller Payout, Partial Dispute Refund) is recorded in balanced Debit/Credit (`DR`/`CR`) journal lines with balanced journal entries ($\sum \text{Debits} = \sum \text{Credits}$).
 - **Anti-Hoarding Checkout Lease:** Two-stage reservation system where adding to cart does not block inventory, but initiating checkout acquires a pessimistic row lock (`SELECT ... FOR UPDATE`) with a 15-minute lease guarded by a PostgreSQL **Partial Unique Index**.
 - **Algorithmic Math Engines:**
   - *Multiplicative Trade-In Valuation:* Dimensionless condition, battery, and accessory factors multiplied against depreciated MSRP before repair cost deduction.
@@ -123,7 +122,7 @@ cp .env.example .env
 docker compose up -d
 ```
 Services started:
-- **PostgreSQL 16:** `localhost:5433` (DB: `reloop_db`, User: `reloop_app`, Password: `reloop_secret_password`)
+- **PostgreSQL 16:** `localhost:5433` (see `.env.example` for local configuration)
 - **Redis 7:** `localhost:6379`
 - **Mailpit:** `http://localhost:8025` (SMTP: `1025`)
 
@@ -174,7 +173,7 @@ Frontend runs at `http://localhost:3000`.
 |---|---|---|---|
 | **API Gateway (Nginx)** | `8000` | http://localhost:8000 | Reverse proxy terpusat, rate limiter & auth routing |
 | **Frontend (Next.js 14)** | `3000` | http://localhost:3000 | Web UI / Marketplace |
-| **Backend (Spring Boot 3)** | `8080` | http://localhost:8080 | REST API & Actuator |
+| **Backend (Quarkus, primary)** | `8080` | http://localhost:8080 | REST API; `/q/health`, `/q/swagger-ui` |
 | **PostgreSQL 16 (Docker)** | `5433` | `localhost:5433/reloop_db` | Database Utama (User: `reloop_app`) |
 | **Redis 7 (Docker)** | `6379` | `localhost:6379` | Cache & Redisson Locks |
 | **Mailpit Web UI (Docker)** | `8025` | http://localhost:8025 | Dashboard Email Testing |
@@ -193,16 +192,13 @@ Frontend runs at `http://localhost:3000`.
 
 Deploy configuration: [`render.yaml`](render.yaml) (backend service definition). The container is built from [`backend-quarkus/Dockerfile`](backend-quarkus/Dockerfile) directly from this repository.
 
-**Demo accounts** (password `SecurePass123!`):
-
-| Role | Email | What to try |
-|---|---|---|
-| Customer | `customer@reloop.com` | Catalog → checkout 15-min lease → orders → returns → notifications |
-| Seller | `seller@reloop.com` | Seller hub: fulfillments, ship with tracking, ledger views |
-| Technician | `tech@reloop.com` | 50-point grading form, repair bench with QC + re-grading |
-| Admin | `admin@reloop.com` | Ops console: fulfillments pipeline, dispute arbitration, escrow stats, returns desk |
+Demo navigation covers customer checkout, seller fulfillment, technical grading, and admin dispute review. Use sample data when exploring the application.
 
 > Note: free-tier services sleep when idle — the first request after inactivity takes ~50 seconds to wake the backend.
+
+## Verification scope
+
+The commands above describe how to run unit, architecture, and Testcontainers integration checks. Test counts describe the documented suite, not a guarantee of production throughput or availability. The live demo uses sample accounts and a mock payment gateway; it is a portfolio demonstration.
 
 ## 🔒 Security Notes
 
@@ -212,3 +208,7 @@ Deploy configuration: [`render.yaml`](render.yaml) (backend service definition).
 - PostgreSQL authority: `audit_logs` & `lifecycle_events` append-only; financial movements only via double-entry journals
 - Rate limiting: Redis-backed login throttling + Nginx gateway rate zones
 - No client-trusted money: all totals recomputed server-side from DB records
+
+---
+
+[Portfolio Alfa Rizi](https://alfarizi.my.id) · [GitHub profile](https://github.com/a1fariz) · [Contact](mailto:alfarizi.developer@gmail.com)
