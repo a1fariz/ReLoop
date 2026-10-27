@@ -14,13 +14,13 @@
 >
 > **Google Sign-In** also available — click "Sign in with Google" on the login page to authenticate via Firebase Auth without creating a password.
 
-ReLoop is an portfolio circular commerce platform built for authenticated serialized electronics, 50-point technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
+ReLoop is a circular-commerce portfolio project built for authenticated serialized electronics, 50-point technical grading certification, anti-hoarding checkout leases, and double-entry financial escrow accounting.
 
 ---
 
 ## 🏛️ Architecture Highlights
 
-- **Modular Monolith Architecture:** Primary backend on **Quarkus 3.15** (JVM) with 25 bounded-context modules, ArchUnit-verified boundaries (`ModuleBoundaryArchitectureTest`), transactional outbox, and immutable audit trail. A **Spring Boot 3.3 / Spring Modulith** twin is kept as a legacy reference (migration story).
+- **Modular Monolith Architecture:** Primary backend on **Quarkus 3.15** (JVM) with 25 backend modules, ArchUnit-verified boundaries (`ModuleBoundaryArchitectureTest`), transactional outbox, and immutable audit trail. A **Spring Boot 3.3 / Spring Modulith** twin is kept as a legacy reference (migration story).
 - **Double-Entry Financial Ledger:** Every monetary movement (Escrow Hold, Platform Commission, Seller Payout, Partial Dispute Refund) is recorded in balanced Debit/Credit (`DR`/`CR`) journal lines with balanced journal entries ($\sum \text{Debits} = \sum \text{Credits}$).
 - **Anti-Hoarding Checkout Lease:** Two-stage reservation system where adding to cart does not block inventory, but initiating checkout acquires a pessimistic row lock (`SELECT ... FOR UPDATE`) with a 15-minute lease guarded by a PostgreSQL **Partial Unique Index**.
 - **Algorithmic Math Engines:**
