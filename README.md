@@ -212,3 +212,7 @@ The commands above describe how to run unit, architecture, and Testcontainers in
 ---
 
 [Portfolio Alfa Rizi](https://alfarizi.my.id) · [GitHub profile](https://github.com/a1fariz) · [Contact](mailto:alfarizi.developer@gmail.com)
+
+## Demo walkthrough
+
+[Read the 1–2 minute walkthrough and interview guide](docs/portfolio-demo.md). This is a presentation script, not a recording or a performance benchmark.
